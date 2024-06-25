@@ -35,10 +35,10 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        if(FirebaseDB.getAuth().getCurrentUser() != null) {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        }
+//        if(FirebaseDB.getAuth().getCurrentUser() != null) {
+//            Intent intent = new Intent(this, MainActivity.class);
+//            startActivity(intent);
+//        }
 
         //initialize editText views
         loginEmail = findViewById(R.id.loginEmail);
@@ -86,7 +86,6 @@ public class LoginActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
                                 Helper.showToast(view, "User created successfully", Toast.LENGTH_LONG);
-
                                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                                 startActivity(intent);
                             }
@@ -112,9 +111,10 @@ public class LoginActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
                                 Helper.showToast(view, "User logged in successfully", Toast.LENGTH_LONG);
-
                                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                                 startActivity(intent);
+
+
                             }
                             else {
                                 Helper.showMessage(view, "Error",task.getException().getLocalizedMessage());
@@ -127,4 +127,6 @@ public class LoginActivity extends AppCompatActivity {
 
         }
     }
+
+
 }

@@ -5,8 +5,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
-public class Helper {
 
+public class Helper {
+    public static User user;
     public static void showMessage(View view, String title, String message){
         new AlertDialog.Builder(view.getContext()).setTitle(title).setMessage(message).setCancelable(true).show();
     }
