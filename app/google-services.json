@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "550367357454",
+    "project_id": "smartalert-cb0d8",
+    "storage_bucket": "smartalert-cb0d8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:550367357454:android:43089df0c4c8a1fa06aa5f",
+        "android_client_info": {
+          "package_name": "com.kouts.spiri.smartalert"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDATftGVaTF3p4bJHL1IV69xGYSQuo-zlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
