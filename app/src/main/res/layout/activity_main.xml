@@ -26,7 +26,6 @@
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/unipi__logo_" />
-
+        app:srcCompat="@drawable/person" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
