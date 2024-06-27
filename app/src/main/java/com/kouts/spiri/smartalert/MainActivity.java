@@ -4,15 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentManager;
 
 public class MainActivity extends AppCompatActivity {
-
+    ImageView settingsButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +30,18 @@ public class MainActivity extends AppCompatActivity {
             getUserInfo(this.getCurrentFocus());
 
         }
+
+        settingsButton = findViewById(R.id.settings);
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                UserView userView = UserView.newInstance();
+
+                userView.show(fragmentManager, "user_view");
+            }
+        });
 
 
     }

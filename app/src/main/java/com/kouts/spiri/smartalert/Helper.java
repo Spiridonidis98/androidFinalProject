@@ -1,9 +1,11 @@
 package com.kouts.spiri.smartalert;
 
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentManager;
 
 
 public class Helper {
@@ -14,6 +16,6 @@ public class Helper {
 
     public static void showToast(View view, String text, int length) {
         Toast.makeText(view.getContext(), text, length).show();
-
     }
+
 }
