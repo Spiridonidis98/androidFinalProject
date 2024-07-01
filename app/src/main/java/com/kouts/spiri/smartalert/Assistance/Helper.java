@@ -2,6 +2,7 @@ package com.kouts.spiri.smartalert.Assistance;
 
 import static androidx.core.content.ContextCompat.startActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Toast;
@@ -20,12 +21,12 @@ import java.util.Locale;
 
 public class Helper {
     public static User user;
-    public static void showMessage(View view, String title, String message){
-        new AlertDialog.Builder(view.getContext()).setTitle(title).setMessage(message).setCancelable(true).show();
+    public static void showMessage(Context context, String title, String message){
+        new AlertDialog.Builder(context).setTitle(title).setMessage(message).setCancelable(true).show();
     }
 
-    public static void showToast(View view, String text, int length) {
-        Toast.makeText(view.getContext(), text, length).show();
+    public static void showToast(Context context, String text, int length) {
+        Toast.makeText(context, text, length).show();
     }
 
     public static String timestampToDate(long timestamp) { //turn timestamp to date

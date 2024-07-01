@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -55,7 +56,8 @@ public class CreateEventActivity extends AppCompatActivity {
             return insets;
         });
 
-        if (FirebaseDB.getAuth().getCurrentUser() == null) {
+        if (FirebaseDB.getAuth().getCurrentUser() == null) { //if user not found go to login screen
+            Helper.showToast(this,"Please log in", Toast.LENGTH_LONG); //not sure if this.getCurrentFocus() works
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -84,7 +86,7 @@ public class CreateEventActivity extends AppCompatActivity {
             dbRef.push().setValue(event);
         }
         else {
-            Helper.showToast(this.getCurrentFocus(),"Location not found, please try again", Toast.LENGTH_LONG); //not sure if this.getCurrentFocus() works
+            Helper.showToast(this,"Location not found, please try again", Toast.LENGTH_LONG); //not sure if this.getCurrentFocus() works
         }
     }
     @Override

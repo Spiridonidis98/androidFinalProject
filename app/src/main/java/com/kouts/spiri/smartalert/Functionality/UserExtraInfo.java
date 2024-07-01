@@ -43,7 +43,7 @@ public class UserExtraInfo extends AppCompatActivity {
 
     public void registerUser(View view) {
         if(lastname.getText().length() == 0 || name.getText().length() == 0) {
-            Helper.showMessage(view, "Warning", "Required Data are missing");
+            Helper.showMessage(view.getContext(), "Warning", "Required Data are missing");
             return;
         }
 
@@ -57,7 +57,7 @@ public class UserExtraInfo extends AppCompatActivity {
 
             @Override
             public void onUserAdded() {
-                Helper.showToast(view, "User created successfully", Toast.LENGTH_LONG);
+                Helper.showToast(view.getContext(), "User created successfully", Toast.LENGTH_LONG);
                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                 startActivity(intent);
             }
