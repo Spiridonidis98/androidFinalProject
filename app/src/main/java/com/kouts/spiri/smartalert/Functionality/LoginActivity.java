@@ -1,4 +1,4 @@
-package com.kouts.spiri.smartalert;
+package com.kouts.spiri.smartalert.Functionality;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +20,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.kouts.spiri.smartalert.Database.FirebaseDB;
+import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.R;
 
 public class LoginActivity extends AppCompatActivity {
     EditText loginEmail, loginPassword, registerEmail, registerPassword;
@@ -77,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
 
     //Register User
     public void registerUser(View view) {
-        if(registerPassword.getText().length() == 0 || registerEmail.getText().length() == 0) return;
+    //    if(registerPassword.getText().length() == 0 || registerEmail.getText().length() == 0) return;  //I don't think that's needed
 
         try {
             FirebaseDB.getAuth().createUserWithEmailAndPassword(registerEmail.getText().toString(), registerPassword.getText().toString()).addOnCompleteListener(

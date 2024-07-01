@@ -1,4 +1,4 @@
-package com.kouts.spiri.smartalert;
+package com.kouts.spiri.smartalert.Functionality;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -14,6 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+
+import com.kouts.spiri.smartalert.Database.FirebaseDB;
+import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.R;
 
 public class UserView extends DialogFragment {
 

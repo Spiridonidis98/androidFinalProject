@@ -1,4 +1,4 @@
-package com.kouts.spiri.smartalert;
+package com.kouts.spiri.smartalert.POJOs;
 
 public class User {
 

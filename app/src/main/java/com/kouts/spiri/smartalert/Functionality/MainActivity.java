@@ -1,8 +1,6 @@
-package com.kouts.spiri.smartalert;
+package com.kouts.spiri.smartalert.Functionality;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -12,6 +10,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
+
+import com.kouts.spiri.smartalert.Database.FirebaseDB;
+import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.POJOs.User;
+import com.kouts.spiri.smartalert.R;
 
 public class MainActivity extends AppCompatActivity {
     ImageView settingsButton;
