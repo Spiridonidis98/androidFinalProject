@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">SmartAlert</string>
+    <string-array name="spinnerEventTypes">
+        <item>Fire</item>
+        <item>Flood</item>
+        <item>Earthquake</item>
+        <item>Tornado</item>
+    </string-array>
 </resources>

@@ -1,16 +1,13 @@
 package com.kouts.spiri.smartalert.Assistance;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.kouts.spiri.smartalert.Database.FirebaseDB;
-import com.kouts.spiri.smartalert.Functionality.MainActivity;
 import com.kouts.spiri.smartalert.POJOs.User;
 
 import java.text.ParseException;
@@ -47,5 +44,20 @@ public class Helper {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //adds different options for selection in the spinner
+    //"resourceId" defines the name of the array resource. For example "R.array.spinnerEventTypes" from the resource file "strings.xml"
+    //"layoutId" defines the desired layout of the spinner an its options. E.g. "android.R.layout.simple_spinner_dropdown_item"
+    public static void addOptionsToSpinner(Context context, int resourceId, int layoutId, Spinner spinner) { //add options to "Type of Event" spinner
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                context,
+                resourceId,
+                layoutId
+        );
+        //the layout to for the selection list
+        adapter.setDropDownViewResource(layoutId);
+        //let the spinner use the adapter
+        spinner.setAdapter(adapter);
     }
 }

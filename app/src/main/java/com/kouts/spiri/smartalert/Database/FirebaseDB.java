@@ -9,6 +9,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.kouts.spiri.smartalert.POJOs.Event;
+import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.User;
 
 import java.util.ArrayList;
@@ -30,13 +32,28 @@ public class FirebaseDB {
 
     public static FirebaseAuth getAuth() { return auth;}
 
-    public static void addUser(User newUser, final  FirebaseUserListener listener) {
+    public static void addUser(User newUser, final FirebaseUserListener listener) {
         if(auth.getCurrentUser() != null) {
             DatabaseReference newUserRef = user.push();
             newUserRef.setValue(newUser)
                     .addOnSuccessListener( aVoid -> {
                         //Successfully added user
                         listener.onUserAdded();
+                    })
+                    .addOnFailureListener(e -> {
+                        listener.onError(e);
+                    });
+
+        }
+    }
+
+    public static void addEvent(Event newEvent, final FirebaseEventListener listener) {
+        if(auth.getCurrentUser() != null) {
+            DatabaseReference newEventRef = events.push();
+            newEventRef.setValue(newEvent)
+                    .addOnSuccessListener( aVoid -> {
+                        //Successfully added user
+                        listener.onEventAdded();
                     })
                     .addOnFailureListener(e -> {
                         listener.onError(e);
@@ -74,6 +91,12 @@ public class FirebaseDB {
     public interface FirebaseUserListener {
         void onUserRetrieved(User user);
         void onUserAdded();
+        void onError(Exception e);
+    }
+
+    public interface FirebaseEventListener {
+        void onEventRetrieved(Event event);
+        void onEventAdded();
         void onError(Exception e);
     }
 }

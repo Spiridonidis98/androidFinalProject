@@ -1,7 +1,9 @@
 package com.kouts.spiri.smartalert.Functionality;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
@@ -18,6 +20,7 @@ import com.kouts.spiri.smartalert.R;
 
 public class MainActivity extends AppCompatActivity {
     ImageView settingsButton;
+    Button reportEventButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         settingsButton = findViewById(R.id.settings);
+        reportEventButton = findViewById(R.id.buttonReportEvent);
+
 
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +51,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        reportEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), CreateEventActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void getUserInfo(View view) {

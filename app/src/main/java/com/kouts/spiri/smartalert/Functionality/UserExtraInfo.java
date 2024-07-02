@@ -64,7 +64,7 @@ public class UserExtraInfo extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-
+                Helper.showMessage(view.getContext(), "Error", "Unknown error occurred. User could not be submitted");
             }
         });
     }

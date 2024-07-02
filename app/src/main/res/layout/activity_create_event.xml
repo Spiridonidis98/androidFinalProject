@@ -8,28 +8,16 @@
     tools:context=".Functionality.CreateEventActivity">
 
     <Button
-        android:id="@+id/buttonAddEvent"
+        android:id="@+id/buttonSubmitEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="createEvent"
-        android:text="Add Event"
+        android:text="Submit Event"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.292" />
-
-    <EditText
-        android:id="@+id/editTextImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Type of event"
-        android:inputType="text"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/editTextImage"
@@ -59,5 +47,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.645" />
+
+    <Spinner
+        android:id="@+id/spinnerEventTypes"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.476"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.499" />
+
+    <TextView
+        android:id="@+id/textViewEventType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Type of Event"
+        app:layout_constraintBottom_toTopOf="@+id/spinnerEventTypes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/spinnerEventTypes"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.97" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
