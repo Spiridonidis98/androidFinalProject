@@ -121,43 +121,47 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     public void createEvent(View view) {
-        if (currentLongitude != 0 && currentLatitude!=0) {
-            //get selected event type
-            EventTypes selectedEventType = Arrays.stream(EventTypes.values())
-                    .filter(eventType -> eventType.toString().equalsIgnoreCase(selectedSpinnerItem))
-                    .findFirst()
-                    .orElse(null);
+        //get selected event type
+        EventTypes selectedEventType = Arrays.stream(EventTypes.values())
+                .filter(eventType -> eventType.toString().equalsIgnoreCase(selectedSpinnerItem))
+                .findFirst()
+                .orElse(null);
 
-            if (selectedEventType != null) {
-                Event event = null;
-                if (selectedImage == null) { //do not include image to Event
-                    event = new Event(FirebaseDB.getAuth().getUid(), selectedEventType, currentLongitude, currentLatitude, timestampToDate(timestamp), comment.getText().toString(), "");
-                } else { //include selected image to Event
-                    String imageUUID = UUID.randomUUID().toString();
-                    String userUID = FirebaseDB.getAuth().getUid();
-                    event = new Event(userUID, selectedEventType, currentLongitude, currentLatitude, timestampToDate(timestamp), comment.getText().toString(), imageUUID);
-                    uploadImageToFirebase(selectedImage, imageUUID, userUID);
-                }
-
-                FirebaseDB.addEvent(event, new FirebaseDB.FirebaseEventListener() {
-                    @Override
-                    public void onEventAdded() {
-                        Helper.showToast(view.getContext(), "Event submitted successfully", Toast.LENGTH_LONG);
-                        Intent intent = new Intent(view.getContext(), MainActivity.class);
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Helper.showMessage(view.getContext(), "Error", "Unknown error occurred. Event could not be submitted");
-                    }
-                });
-            } else {
-                Helper.showMessage(this, "Error", "No selected event type found");
-            }
-        } else {
-            Helper.showToast(this, "Location not found, please try again", Toast.LENGTH_LONG);
+        if (selectedEventType == null) {
+            Helper.showMessage(this, "Error", "No selected event type found");
+            return;
         }
+        if (currentLongitude == 0 || currentLatitude==0) {
+            Helper.showToast(this, "Location not found, please try again", Toast.LENGTH_LONG);
+            return;
+        }
+        if (comment.getText().toString().trim().isEmpty()) {
+            Helper.showToast(this, "Please add a comment", Toast.LENGTH_LONG);
+            return;
+        }
+
+        Event event = null;
+        if (selectedImage == null) { //do not include image to Event
+            event = new Event(FirebaseDB.getAuth().getUid(), selectedEventType, currentLongitude, currentLatitude, timestampToDate(timestamp), comment.getText().toString(), "");
+        } else { //include selected image to Event
+            String imageUUID = UUID.randomUUID().toString();
+            String userUID = FirebaseDB.getAuth().getUid();
+            event = new Event(userUID, selectedEventType, currentLongitude, currentLatitude, timestampToDate(timestamp), comment.getText().toString(), imageUUID);
+            uploadImageToFirebase(selectedImage, imageUUID, userUID);
+        }
+        FirebaseDB.addEvent(event, new FirebaseDB.FirebaseEventListener() {
+            @Override
+            public void onEventAdded() {
+                Helper.showToast(view.getContext(), "Event submitted successfully", Toast.LENGTH_LONG);
+                Intent intent = new Intent(view.getContext(), MainActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Helper.showMessage(view.getContext(), "Error", "Unknown error occurred. Event could not be submitted");
+            }
+        });
     }
 
     @Override
