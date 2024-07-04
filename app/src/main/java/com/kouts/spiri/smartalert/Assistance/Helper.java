@@ -1,13 +1,17 @@
 package com.kouts.spiri.smartalert.Assistance;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
-import android.view.View;
+import android.content.Intent;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.kouts.spiri.smartalert.Database.FirebaseDB;
+import com.kouts.spiri.smartalert.Functionality.LoginActivity;
 import com.kouts.spiri.smartalert.POJOs.User;
 
 import java.text.ParseException;
@@ -16,7 +20,7 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class Helper {
+public abstract class Helper {
     public static User user;
     public static void showMessage(Context context, String title, String message){
         new AlertDialog.Builder(context).setTitle(title).setMessage(message).setCancelable(true).show();
@@ -59,5 +63,13 @@ public class Helper {
         adapter.setDropDownViewResource(layoutId);
         //let the spinner use the adapter
         spinner.setAdapter(adapter);
+    }
+
+    public static void validateCurrentUser(Context context) {
+        if (FirebaseDB.getAuth().getUid() == null) { //if user not found go to login screen
+            Helper.showToast(context, "Please log in", Toast.LENGTH_LONG);
+            Intent intent = new Intent(context, LoginActivity.class);
+            startActivity(context,intent,null);
+        }
     }
 }

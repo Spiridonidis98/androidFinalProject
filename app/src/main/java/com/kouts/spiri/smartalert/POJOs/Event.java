@@ -1,6 +1,7 @@
 package com.kouts.spiri.smartalert.POJOs;
 
 public class Event {
+    private String uid; //the id of the USER who submitted the event
     private EventTypes alertType;
     private double latitude, longitude;
     private String timestamp;
@@ -9,13 +10,18 @@ public class Event {
 
     public Event() {}
 
-    public Event(EventTypes alertType, double latitude, double longitude, String timestamp, String comment, String image) {
+    public Event(String uid, EventTypes alertType, double latitude, double longitude, String timestamp, String comment, String image) {
+        this.uid = uid;
         this.alertType = alertType;
         this.latitude = latitude;
         this.longitude = longitude;
         this.timestamp = timestamp;
         this.comment = comment;
         this.image = image;
+    }
+
+    public String getUid() {
+        return uid;
     }
 
     public EventTypes getAlertType() {
@@ -44,8 +50,9 @@ public class Event {
 
     @Override
     public String toString() {
-        return "Alerts{" +
-                "alertType=" + alertType +
+        return "Event{" +
+                "uid='" + uid + '\'' +
+                ", alertType=" + alertType +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", timestamp='" + timestamp + '\'' +
