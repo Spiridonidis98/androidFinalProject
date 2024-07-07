@@ -7,4 +7,10 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
+    <style name="MyDatePickerDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Customize your dialog here -->
+        <item name="colorAccent">#0E2F51</item> <!-- Accent color for the dialog -->
+        <item name="android:textColorPrimary">#000000</item> <!-- Text color for primary text -->
+        <item name="android:textColorSecondary">#808080</item> <!-- Text color for secondary text -->
+    </style>
 </resources>

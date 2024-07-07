@@ -41,6 +41,7 @@ import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class CreateEventActivity extends AppCompatActivity {
@@ -150,6 +151,8 @@ public class CreateEventActivity extends AppCompatActivity {
             uploadImageToFirebase(selectedImage, imageUUID, userUID);
         }
         FirebaseDB.addEvent(event, new FirebaseDB.FirebaseEventListener() {
+            @Override
+            public void onEventsRetrieved(List<Event> event) {};
             @Override
             public void onEventAdded() {
                 Helper.showToast(view.getContext(), "Event submitted successfully", Toast.LENGTH_LONG);

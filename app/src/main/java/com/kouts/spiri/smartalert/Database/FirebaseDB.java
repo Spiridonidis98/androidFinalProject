@@ -1,5 +1,7 @@
 package com.kouts.spiri.smartalert.Database;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -11,9 +13,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.POJOs.Event;
+import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.User;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +76,44 @@ public class FirebaseDB {
         }
     }
 
+    public static void getEvents(String startDate, String endDate, Boolean isFireChecked, Boolean isFloodChecked, Boolean isEarthquakeChecked, Boolean isTornadoChecked, final FirebaseEventListener listener) {
+
+        Log.e("START", startDate);
+        Log.e("End", endDate);
+
+        Query query = events.orderByChild("timestamp").endBefore(endDate).startAfter(startDate);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<Event> eventsFound = new ArrayList<>();
+                if (!snapshot.exists()) {
+                    listener.onEventsRetrieved(null);
+                    return;
+                }
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    Event tempEvent = snap.getValue(Event.class);
+
+                    if(tempEvent != null &&
+                           ( (isFireChecked && tempEvent.getAlertType() == EventTypes.FIRE)
+                            || (isFloodChecked && tempEvent.getAlertType() == EventTypes.FLOOD)
+                            || (isEarthquakeChecked && tempEvent.getAlertType() == EventTypes.EARTHQUAKE)
+                            || (isTornadoChecked && tempEvent.getAlertType() == EventTypes.TORNADO))
+                    ){
+                        eventsFound.add(tempEvent);
+                    }
+                }
+
+                listener.onEventsRetrieved(eventsFound);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     public static void getUserInfo(String uid, final FirebaseUserListener listener) {
         Query query = user.orderByChild("uid").equalTo(uid);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -104,6 +147,7 @@ public class FirebaseDB {
     }
 
     public interface FirebaseEventListener {
+        void onEventsRetrieved(List<Event> events);
         void onEventAdded();
         void onError(Exception e);
     }

@@ -9,27 +9,103 @@
     android:background="#4A7BB9EA"
     tools:context=".Functionality.EventStatisticsActivity">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <LinearLayout
-            android:id="@+id/reportContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/buttonDatePickerStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:background="@drawable/datepicker_button"
+                android:textColor="#0E2F51"
+                android:text="Select Date" />
+
+            <Button
+                android:id="@+id/buttonDatePickerEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/datepicker_button"
+                android:backgroundTint="#ED1515"
+                android:text="Select Date"
+                android:textColor="#0E2F51" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <CheckBox
+                android:id="@+id/fireCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fire"
+                android:textColor="#AA4203"
+                android:buttonTint="#AA4203"></CheckBox>
+            <CheckBox
+                android:id="@+id/earthquakeCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Earthquake"
+                android:textColor="#8B4513"
+                android:buttonTint="#8B4513"></CheckBox>
+            <CheckBox
+                android:id="@+id/tornadoCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tornado"
+                android:textColor="#808080"
+                android:buttonTint="#808080"
+                ></CheckBox>
+            <CheckBox
+                android:id="@+id/floodCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Flood"
+                android:textColor="#0000FF"
+                android:buttonTint="#0000FF"></CheckBox>
+
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/getEvents"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-            <!-- Dynamic report content will be added here -->
-            <Button
-                android:id="@+id/button"
+            android:onClick="getEvents"
+            android:backgroundTint="#0E2F51"
+            android:text="Search Events" />
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:id="@+id/reportContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="getEvents"
-                android:backgroundTint="#0E2F51"
-                android:text="Search Events" />
-        </LinearLayout>
-    </ScrollView>
+                android:orientation="vertical">
+
+                <TextView
+                android:id="@+id/searchResults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                </TextView>
+                <!-- Dynamic report content will be added here -->
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
 </RelativeLayout>
 
 <!--<?xml version="1.0" encoding="utf-8"?>-->

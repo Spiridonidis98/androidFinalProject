@@ -4,6 +4,7 @@ import static androidx.core.content.ContextCompat.startActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import com.kouts.spiri.smartalert.POJOs.User;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -71,5 +73,50 @@ public abstract class Helper {
             Intent intent = new Intent(context, LoginActivity.class);
             startActivity(context,intent,null);
         }
+    }
+
+    //here we will return the first day of the week
+    public static String getStartOfWeek() {
+        Calendar calendar = Calendar.getInstance();
+
+        // Set the first day of the week to Monday
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+
+        while( calendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            calendar.add(Calendar.DAY_OF_WEEK, -1);
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        return sdf.format(calendar.getTime());
+    }
+
+    public static String getToday() {
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        return sdf.format(calendar.getTime());
+    }
+
+    public static String convertDateFormat(String originalDate) {
+        // Split the original date string
+        String[] parts = originalDate.split("/");
+
+        // Rearrange the parts to form "yyyy-M-d" format
+        String year = parts[2];
+        String month = parts[1];
+        String day = parts[0];
+
+        if(month.length() == 1) {
+            month = "0" + month;
+        }
+
+        if(day.length() == 1) {
+            day = "0" + day;
+        }
+
+        // Join the parts with "-"
+        String convertedDate = year + "-" + month + "-" + day;
+
+        return convertedDate;
     }
 }

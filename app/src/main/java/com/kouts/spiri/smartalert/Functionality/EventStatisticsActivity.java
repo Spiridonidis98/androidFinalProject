@@ -1,5 +1,6 @@
 package com.kouts.spiri.smartalert.Functionality;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -16,6 +17,7 @@ import android.widget.CalendarView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -34,14 +36,13 @@ import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 public class EventStatisticsActivity extends AppCompatActivity {
-
-    CheckBox checkBoxFire, checkBoxFlood, checkBoxEarthquake, checkBoxTornado, checkBoxCalendar;
-    static Calendar calendar = Calendar.getInstance();
-    TextView dateTextView;
-    long timestampFilter;
+    private Button buttonDatePickerStart, buttonDatePickerEnd;
+    CheckBox fireCheckbox, earthquakeCheckbox, tornadoCheckbox, floodCheckbox;
     private LinearLayout reportContainer;
         @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,40 +56,130 @@ public class EventStatisticsActivity extends AppCompatActivity {
         });
             reportContainer = findViewById(R.id.reportContainer);
 
+
+            //Checkboxes
+            fireCheckbox = findViewById(R.id.fireCheckbox);
+            floodCheckbox = findViewById(R.id.floodCheckbox);
+            earthquakeCheckbox = findViewById(R.id.earthquakeCheckbox);
+            tornadoCheckbox = findViewById(R.id.tornadoCheckbox);
+
+            fireCheckbox.setChecked(true);
+            floodCheckbox.setChecked(true);
+            earthquakeCheckbox.setChecked(true);
+            tornadoCheckbox.setChecked(true);
+
+
+            buttonDatePickerStart = findViewById(R.id.buttonDatePickerStart);
+            buttonDatePickerEnd = findViewById(R.id.buttonDatePickerEnd);
+
+            buttonDatePickerStart.setText(""+ Helper.getStartOfWeek());
+            buttonDatePickerEnd.setText(""+ Helper.getToday());
+
+            buttonDatePickerStart.setOnClickListener(v -> {
+                // Get current date
+                final Calendar c = Calendar.getInstance();
+
+                String[] start = buttonDatePickerStart.getText().toString().split("/");
+
+                int year = Integer.parseInt(start[2]);
+                int month =  Integer.parseInt(start[1]) - 1;
+                int day =  Integer.parseInt(start[0]);
+
+                // Create DatePickerDialog and set date selected listener
+                DatePickerDialog datePickerDialog = new DatePickerDialog(EventStatisticsActivity.this, R.style.MyDatePickerDialogTheme,
+                        (view, year1, monthOfYear, dayOfMonth) -> {
+                            // Display selected date
+                            String selectedDate = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
+                            buttonDatePickerStart.setText(selectedDate);
+                        }, year, month, day);
+                datePickerDialog.show();
+            });
+
+            buttonDatePickerEnd.setOnClickListener(v -> {
+                // Get current date
+                String[] end = buttonDatePickerEnd.getText().toString().split("/");
+
+                int year = Integer.parseInt(end[2]);
+                int month =  Integer.parseInt(end[1]) - 1;
+                int day =  Integer.parseInt(end[0]);
+
+                // Create DatePickerDialog and set date selected listener
+                DatePickerDialog datePickerDialog = new DatePickerDialog(EventStatisticsActivity.this,  R.style.MyDatePickerDialogTheme, // Apply custom style
+                        (view, year1, monthOfYear, dayOfMonth) -> {
+                            // Display selected date
+                            String selectedDate = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
+                            buttonDatePickerEnd.setText(selectedDate);
+                        }, year, month, day);
+                datePickerDialog.show();
+            });
+
     }
 
+
     public void getEvents(View v) {
-        DatabaseReference dbEventsRef = FirebaseDB.getEventsReference();
-        dbEventsRef.get().addOnCompleteListener(task -> {
-            DataSnapshot dataSnapshot;
-            if (task.isSuccessful()) { //get snapshot
-                dataSnapshot = task.getResult();
-            }
-            else {
-                Helper.showMessage(v.getContext(),"Error","System could not receive data from database");
-                return;
-            }
-
-            if (! dataSnapshot.exists()) {
-                Helper.showMessage(v.getContext(), "No data recorded", "There are currently no matching data in the database");
-                return;
-            }
-
-
-            ArrayList<Event> displayedEvents = new ArrayList<>();
-
-            for (DataSnapshot snapshot : dataSnapshot.getChildren()) { //for each child in snapshot
-                Event event;
-                event = snapshot.getValue(Event.class);
-                if (event == null) {
-                    Helper.showMessage(v.getContext(),"No events recorded", "There are currently no events in the database");
-                    return;
+            reportContainer.removeAllViewsInLayout();
+            String startDate = Helper.convertDateFormat(buttonDatePickerStart.getText().toString()) + " 00:00:00";
+            String endDate = Helper.convertDateFormat(buttonDatePickerEnd.getText().toString()) + " 23:59:59";
+            FirebaseDB.getEvents(startDate, endDate,fireCheckbox.isChecked(), floodCheckbox.isChecked(), earthquakeCheckbox.isChecked(), tornadoCheckbox.isChecked() ,new FirebaseDB.FirebaseEventListener() {
+                @Override
+                public void onEventsRetrieved(List<Event> events) {
+                    if(events == null || events.isEmpty()) {
+                        Helper.showMessage(v.getContext(), "Warning", "No events found for the given criteria");
+                        return;
+                    }
+                    fixSearchResultText(events);
+                    for(Event e: events) {
+                        addEventToLayout(e);
+                    }
                 }
-                addEventToLayout(event);
 
+                @Override
+                public void onEventAdded() {
+
+                }
+
+                @Override
+                public void onError(Exception e) {
+                }
+            });
+    }
+
+    public void fixSearchResultText(List<Event> events) {
+
+        TextView searchResults = new TextView(this);
+
+
+        int fireEventsCounter = 0;
+        int floodEventsCounter = 0;
+        int earthquakeEventsCounter = 0;
+        int tornadoEventsCounter = 0;
+
+        for(Event e: events) {
+            switch (e.getAlertType()) {
+                case FIRE: fireEventsCounter++; break;
+                case TORNADO: tornadoEventsCounter++; break;
+                case FLOOD: floodEventsCounter++; break;
+                case EARTHQUAKE: earthquakeEventsCounter++; break;
             }
-            int totalDisplayedEvents = displayedEvents.size();
-        });
+        }
+
+        String results = "Results:";
+
+        if(fireCheckbox.isChecked()) {
+            results += " Fires: " + fireEventsCounter;
+        }
+        if(earthquakeCheckbox.isChecked()) {
+            results += " Earthquakes: " + earthquakeEventsCounter;
+        }
+        if(tornadoCheckbox.isChecked()) {
+            results += " Tornadoes: " + tornadoEventsCounter;
+        }
+        if(floodCheckbox.isChecked()) {
+            results += " Floods: " + floodEventsCounter;
+        }
+
+        searchResults.setText(results);
+        reportContainer.addView(searchResults);
     }
 
     public void addEventToLayout(Event event) {
