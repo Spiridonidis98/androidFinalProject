@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundcolor"
+    tools:context=".Functionality.Fragments.CreateEventFragment">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primarycolor"
+            android:text="Comment">
+        </TextView>
+
+        <EditText
+            android:layout_gravity="center"
+            android:id="@+id/editTextComments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="Comments"
+            android:background="@drawable/datepicker_button"
+            android:padding="16dp"
+            android:textColor="@color/primarycolor"
+            android:inputType="textMultiLine" />
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:id="@+id/textViewEventType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type of Event" />
+        <Spinner
+            android:id="@+id/spinnerEventTypes"
+            android:layout_width="match_parent"
+            android:background="@drawable/datepicker_button"
+            android:padding="10dp"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:layout_marginTop="10dp"
+            android:id="@+id/imageViewEventImage"
+            android:layout_gravity="center"
+            android:layout_width="130dp"
+            android:layout_height="130dp" />
+
+
+        <Button
+            android:backgroundTint="@color/primarycolor"
+            android:id="@+id/buttonSubmitEvent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Submit Event"></Button>
+    </LinearLayout>
+
+
+
+
+
+
+</FrameLayout>

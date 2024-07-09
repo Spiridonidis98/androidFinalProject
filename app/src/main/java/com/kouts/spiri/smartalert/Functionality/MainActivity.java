@@ -1,26 +1,37 @@
 package com.kouts.spiri.smartalert.Functionality;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+import com.kouts.spiri.smartalert.Functionality.Fragments.CreateEventFragment;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Functionality.Fragments.EventStatisticsFragment;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
 
 public class MainActivity extends AppCompatActivity {
     ImageView settingsButton;
     Button reportEventButton;
+    private static final int MENU_EVENT_STATISTICS = R.id.eventStatisticsFragment;
+    private static final int MENU_CREATE_EVENT = R.id.createEventFragment;
+    BottomNavigationView bottomNavigationView;
+
+    EventStatisticsFragment eventStatisticsFragment = new EventStatisticsFragment();
+    CreateEventFragment createEventFragment = new CreateEventFragment();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,28 +47,46 @@ public class MainActivity extends AppCompatActivity {
             getUserInfo(this.getCurrentFocus());
 
         }
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
 
-        settingsButton = findViewById(R.id.settings);
-        reportEventButton = findViewById(R.id.buttonReportEvent);
-
-
-        settingsButton.setOnClickListener(new View.OnClickListener() {
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                UserView userView = UserView.newInstance();
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                Log.e("ITEM", menuItem.getItemId() + "");
+                int eventStatisticsFragmentid = R.id.eventStatisticsFragment;
 
-                userView.show(fragmentManager, "user_view");
+                if(menuItem.getItemId() == MENU_EVENT_STATISTICS) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
+                }
+                else if(menuItem.getItemId() == MENU_CREATE_EVENT) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
+                }
+                return true;
             }
         });
 
-        reportEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), CreateEventActivity.class);
-                startActivity(intent);
-            }
-        });
+//        settingsButton = findViewById(R.id.settings);
+//        reportEventButton = findViewById(R.id.buttonReportEvent);
+
+
+//        settingsButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FragmentManager fragmentManager = getSupportFragmentManager();
+//                UserView userView = UserView.newInstance();
+//
+//                userView.show(fragmentManager, "user_view");
+//            }
+//        });
+
+//        reportEventButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(v.getContext(), CreateEventActivity.class);
+//                startActivity(intent);
+//            }
+//        });
     }
 
     public void getUserInfo(View view) {

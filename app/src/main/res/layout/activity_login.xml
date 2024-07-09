@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#4A7BB9EA"
+    android:background="@color/backgroundcolor"
 
     tools:context=".Functionality.LoginActivity">
 
@@ -76,7 +76,7 @@
                 android:layout_marginTop="25dp"
                 android:onClick="loginUser"
                 android:text="Login"
-                android:backgroundTint="#0E2F51"
+                android:backgroundTint="@color/primarycolor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/loginPassword" />
@@ -153,7 +153,7 @@
                 android:layout_marginTop="25dp"
                 android:onClick="registerUser"
                 android:text="Register"
-                android:backgroundTint="#0E2F51"
+                android:backgroundTint="@color/primarycolor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.522"
                 app:layout_constraintStart_toStartOf="parent"
