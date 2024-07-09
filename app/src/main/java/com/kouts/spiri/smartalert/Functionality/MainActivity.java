@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
         settingsButton = findViewById(R.id.settings);
         reportEventButton = findViewById(R.id.buttonReportEvent);
+        Button buttonWorkerTest = findViewById(R.id.buttonWorkerTest);
+        Button buttonEventStatistics = findViewById(R.id.buttonEventStatistics);
+
 
 
         settingsButton.setOnClickListener(new View.OnClickListener() {
@@ -55,6 +58,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), CreateEventActivity.class);
+                startActivity(intent);
+            }
+        });
+        buttonEventStatistics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), EventStatisticsActivity.class);
+                startActivity(intent);
+            }
+        });
+        buttonWorkerTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), TestActivity.class);
                 startActivity(intent);
             }
         });
