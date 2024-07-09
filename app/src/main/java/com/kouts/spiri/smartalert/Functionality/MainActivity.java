@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -53,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                Log.e("ITEM", menuItem.getItemId() + "");
-                int eventStatisticsFragmentid = R.id.eventStatisticsFragment;
 
                 if(menuItem.getItemId() == MENU_EVENT_STATISTICS) {
                     getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
@@ -62,31 +61,16 @@ public class MainActivity extends AppCompatActivity {
                 else if(menuItem.getItemId() == MENU_CREATE_EVENT) {
                     getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
                 }
+                else {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    UserView userView = UserView.newInstance();
+
+                    userView.show(fragmentManager, "user_view");
+                }
                 return true;
             }
         });
 
-//        settingsButton = findViewById(R.id.settings);
-//        reportEventButton = findViewById(R.id.buttonReportEvent);
-
-
-//        settingsButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                FragmentManager fragmentManager = getSupportFragmentManager();
-//                UserView userView = UserView.newInstance();
-//
-//                userView.show(fragmentManager, "user_view");
-//            }
-//        });
-
-//        reportEventButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(v.getContext(), CreateEventActivity.class);
-//                startActivity(intent);
-//            }
-//        });
     }
 
     public void getUserInfo(View view) {

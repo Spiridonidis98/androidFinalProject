@@ -13,4 +13,10 @@
         <item name="android:textColorPrimary">#000000</item> <!-- Text color for primary text -->
         <item name="android:textColorSecondary">#808080</item> <!-- Text color for secondary text -->
     </style>
+
+    <style name="BottomNavigationViewStyle" parent="Widget.Design.BottomNavigationView">
+        <item name="itemIconTint">@color/backgroundcolor</item>
+        <item name="itemTextColor">@color/primarycolor</item>
+        <item name="android:background">?android:attr/windowBackground</item>
+    </style>
 </resources>

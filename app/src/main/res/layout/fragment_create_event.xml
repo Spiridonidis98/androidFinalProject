@@ -39,6 +39,7 @@
             android:id="@+id/textViewEventType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/primarycolor"
             android:text="Type of Event" />
         <Spinner
             android:id="@+id/spinnerEventTypes"
