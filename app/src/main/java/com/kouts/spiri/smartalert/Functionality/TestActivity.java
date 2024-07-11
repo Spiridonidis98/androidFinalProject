@@ -53,7 +53,6 @@ public class TestActivity extends AppCompatActivity {
         //Data data = new Data.Builder().putString("example","data").build();
         WorkManager workManager = WorkManager.getInstance(this);
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(MyWorker.class)
-              //  .setInputData(data)
                 .build();
         workManager.enqueue(request);
         workManager.getWorkInfoByIdLiveData(request.getId())
