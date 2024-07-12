@@ -2,6 +2,7 @@ package com.kouts.spiri.smartalert.Functionality.Fragments;
 
 import android.app.DatePickerDialog;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
@@ -92,7 +93,11 @@ public class EventStatisticsFragment extends Fragment {
                     String selectedDate = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
                     button.setText(selectedDate);
                 }, year, month, day);
+
         datePickerDialog.show();
+        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.RED);
+        datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#0E2F51"));
+
     }
 
     public void getEvents(View v) {

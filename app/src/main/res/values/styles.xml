@@ -9,9 +9,9 @@
     </style>
     <style name="MyDatePickerDialogTheme" parent="Theme.AppCompat.Light.Dialog">
         <!-- Customize your dialog here -->
-        <item name="colorAccent">#0E2F51</item> <!-- Accent color for the dialog -->
-        <item name="android:textColorPrimary">#000000</item> <!-- Text color for primary text -->
-        <item name="android:textColorSecondary">#808080</item> <!-- Text color for secondary text -->
+        <item name="colorAccent">@color/primarycolor</item> <!-- Accent color for the dialog -->
+        <item name="android:textColorPrimary">@color/black</item> <!-- Text color for primary text -->
+        <item name="android:textColorSecondary">@color/white</item> <!-- Text color for secondary text -->
     </style>
 
     <style name="BottomNavigationViewStyle" parent="Widget.Design.BottomNavigationView">
