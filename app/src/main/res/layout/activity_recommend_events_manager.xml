@@ -5,10 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Functionality.TestActivity">
+    tools:context=".Functionality.RecommendEventsManagerActivity">
 
     <Button
-        android:id="@+id/buttonTest"
+        android:id="@+id/buttonRecommendEvents"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Button"
@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textViewTest"
+        android:id="@+id/textViewState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"

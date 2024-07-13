@@ -2,6 +2,7 @@ package com.kouts.spiri.smartalert.Functionality;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        Helper.validateCurrentUser(this);
         if (Helper.user == null) {
             getUserInfo(this.getCurrentFocus());
 
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         buttonWorkerTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), TestActivity.class);
+                Intent intent = new Intent(v.getContext(), RecommendEventsManagerActivity.class);
                 startActivity(intent);
             }
         });
@@ -81,7 +83,12 @@ public class MainActivity extends AppCompatActivity {
         FirebaseDB.getUserInfo(FirebaseDB.getAuth().getUid(), new FirebaseDB.FirebaseUserListener() {
             @Override
             public void onUserRetrieved(User user) {
-                Helper.user = user;
+                if (user != null) {
+                    Helper.user = user;
+                }
+                else {
+                    Log.d("USER NOT FOUND ERROR", "User not found in the database");
+                }
             }
 
             @Override

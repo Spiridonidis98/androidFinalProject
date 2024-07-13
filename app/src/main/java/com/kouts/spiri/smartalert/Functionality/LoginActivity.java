@@ -1,5 +1,6 @@
 package com.kouts.spiri.smartalert.Functionality;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,8 +19,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.database.DataSnapshot;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.R;
@@ -38,10 +41,7 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        if(FirebaseDB.getAuth().getCurrentUser() != null) {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        }
+        ValidateUser(this);
 
         //initialize editText views
         loginEmail = findViewById(R.id.loginEmail);
@@ -131,6 +131,18 @@ public class LoginActivity extends AppCompatActivity {
 
         }
     }
-
-
+    private void ValidateUser(Context c) {
+        String userId = FirebaseDB.getAuth().getUid();
+        if (userId != null) {
+            FirebaseDB.getUserReference().child(userId).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+                @Override
+                public void onSuccess(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.hasChildren()) {
+                        Intent intent = new Intent(c, MainActivity.class);
+                        startActivity(intent);
+                    }
+                }
+            });
+        }
+    }
 }

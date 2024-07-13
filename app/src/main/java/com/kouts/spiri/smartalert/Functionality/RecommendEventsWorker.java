@@ -8,6 +8,8 @@ import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,17 +29,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class MyWorker extends Worker {
+public class RecommendEventsWorker extends Worker {
 
-    final double RADIUS_KM = 10;
-    final long ACCEPTABLE_TIME_DIFF = 2 *60*60*1000; //2 hours
-    final int CLUSTER_NUM = 5;
+    final double RADIUS_KM = 20;
+    final long ACCEPTABLE_TIME_DIFF = 2 *60*60*1000; //2 hours forwards AND backwards, for a total of 4 hours
+    final int CLUSTER_NUM = 5; //there need to be at least 'CLUSTER_NUM' events that refer to the same disaster reported to recommend an alert
     final int LAST_X_DAYS = 1; // is used to get all events in the last X days
-    public MyWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    final int TOTAL_THREADS = 4; // number of threads to be used, 1 for each event type.
+
+    public RecommendEventsWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 
@@ -45,35 +47,31 @@ public class MyWorker extends Worker {
     @Override
     public Result doWork() {
 
-        AtomicBoolean gotDataFromDB = new AtomicBoolean(false);
-
         ArrayList<Event> recentEventsFire = new ArrayList<>();
         ArrayList<Event> recentEventsFlood = new ArrayList<>();
         ArrayList<Event> recentEventsEarthquake = new ArrayList<>();
         ArrayList<Event> recentEventsTornado = new ArrayList<>();
-        int totalThreads = 4;
 
-        CountDownLatch countDownLatch = new CountDownLatch(1); //ensures dbEventsRef addListenerForSingleValueEvent finishes first.
+        ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(5);
+        List<Future<ArrayList<ArrayList<Event>>>> futures;
+        List<Callable<ArrayList<ArrayList<Event>>>> callables = new ArrayList<>();
 
+        CountDownLatch countDownLatch = new CountDownLatch(1); //ensures dbEventsRef listener finishes first.
 
-//        Context context = this.getApplicationContext();
-
-        // Get current time and calculate the timestamp for 24 hours ago
         long currentTime = System.currentTimeMillis();
         String previousDate = Helper.timestampToDate(currentTime - (LAST_X_DAYS * 24 * 60 * 60 * 1000)); //days to milliseconds
 
         DatabaseReference dbEventsRef = FirebaseDB.getEventsReference();
-        dbEventsRef.orderByChild("timestamp").startAt(previousDate).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        dbEventsRef.orderByChild("timestamp").startAt(previousDate).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("addListenerForSingleValueEvent", "just entered");
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                DataSnapshot snapshot = task.getResult();
 
                 if (!snapshot.exists()) {
-                    Log.d("No data recorded", "There are currently no matching data in the database");
-//                Helper.showMessage(context, "No data recorded", "There are currently no matching data in the database");
+                    Log.d("RecommendedEventsWorker", "There are currently no matching data in the database");
                     return;
                 }
-
 
                 Event event;
                 EventTypes eventType;
@@ -81,8 +79,7 @@ public class MyWorker extends Worker {
 
                     event = snap.getValue(Event.class);
                     if (event == null) {
-                        Log.d("No events recorded", "There are currently no events in the database");
-//                    Helper.showMessage(context, "No events recorded", "There are currently no events in the database");
+                        Log.d("RecommendedEventsWorker", "There are currently no events in the database");
                         return;
                     }
 
@@ -96,109 +93,91 @@ public class MyWorker extends Worker {
                     } else if (eventType.equals(EventTypes.TORNADO)) {
                         recentEventsTornado.add(event);
                     }
-              //      gotDataFromDB.set(true);
-Log.d("LISTENER FINISHED","OK");
                 }
                 countDownLatch.countDown(); //allow the other threads to start
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                countDownLatch.countDown();
-            }
         });
 
-
-        ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(5);
-        List<Future<ArrayList<Event>>> futures;
-        List<Callable<ArrayList<Event>>> callables = new ArrayList<>();
-
-
-        for (int i = 0; i < totalThreads; i++) {
+        for (int i = 0; i < TOTAL_THREADS; i++) {
 
             int finalI = i;
             callables.add(() -> {
-                ArrayList<Event> recommendedAlerts = new ArrayList<>();
+                ArrayList<ArrayList<Event>> recommendedAlertLists = new ArrayList<>();
                 switch (finalI) {
                     case 0:
-                        recommendedAlerts = calculateRecommendedAlerts(recentEventsFire);
+                        recommendedAlertLists = calculateRecommendedAlerts(recentEventsFire);
                         break;
                     case 1:
-                        recommendedAlerts = calculateRecommendedAlerts(recentEventsFlood);
+                        recommendedAlertLists = calculateRecommendedAlerts(recentEventsFlood);
                         break;
                     case 2:
-                        recommendedAlerts = calculateRecommendedAlerts(recentEventsEarthquake);
+                        recommendedAlertLists = calculateRecommendedAlerts(recentEventsEarthquake);
                         break;
                     case 3:
-                        recommendedAlerts = calculateRecommendedAlerts(recentEventsTornado);
+                        recommendedAlertLists = calculateRecommendedAlerts(recentEventsTornado);
                         break;
                 }
-                Log.d("CALLABLE FINISHED","OK");
 
-                return recommendedAlerts;
+                return recommendedAlertLists;
             });
         }
 
         try {
-            countDownLatch.await(); //wait for "listener for single value event" to finish
+            countDownLatch.await(); //wait for database listener to finish
             futures = executorService.invokeAll(callables);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        ArrayList<ArrayList<Event>> allRecommendedAlerts = new ArrayList<>();
-        for (Future<ArrayList<Event>> future: futures) {
+        ArrayList<ArrayList<Event>> allAlertLists = new ArrayList<>();
+        for (Future<ArrayList<ArrayList<Event>>> future: futures) {
             try {
-                ArrayList<Event> recommendedAlerts = future.get();
-                allRecommendedAlerts.add(recommendedAlerts);
-                System.out.println(recommendedAlerts);
+                ArrayList<ArrayList<Event>> recommendedAlertLists = future.get();
+                allAlertLists.addAll(recommendedAlertLists);
+                System.out.println(recommendedAlertLists);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
 
-        // Convert ArrayList<ArrayList<Event>> to JSON string
+        //convert ArrayList<ArrayList<Event>> to JSON
         Gson gson = new Gson();
-        String allRecommendedAlertsJson = gson.toJson(allRecommendedAlerts);
+        String allRecommendedAlertListsJson = gson.toJson(allAlertLists);
 
-        // Put the JSON string in a Data object
+        //put the JSON in a Data object
         Data outputData = new Data.Builder()
-                .putString("all_recommended_events", allRecommendedAlertsJson)
+                .putString("all_recommended_alert_lists", allRecommendedAlertListsJson)
                 .build();
 
         return Result.success(outputData);
     }
 
 
-    //groups Events that refer to the same disaster and calculates/returns which Event in each group recommends as an alert
-    private ArrayList<Event> calculateRecommendedAlerts(ArrayList<Event> recentEventsOfType) {
+    //groups Events that refer to the same disaster and returns the groups (lists) of those elements
+    //The first event of each group should be considered the center of the disaster because the group is formed with events close to it in distance and time
+    private ArrayList<ArrayList<Event>> calculateRecommendedAlerts(ArrayList<Event> recentEventsOfType) {
 
-        ArrayList<Event> sortedEvents;
         ArrayList<ArrayList<Event>> clusteredEventLists = new ArrayList<>();
         ArrayList<ArrayList<Event>> listsToRemove = new ArrayList<>();
-        ArrayList<Event> recommendedAlerts = new ArrayList<>();
 
-        sortedEvents = recentEventsOfType.stream() //sort items in list by timestamp in milliseconds and return them sorted
-                .sorted(Comparator.comparingLong(event -> Helper.dateToTimestamp(event.getTimestamp())))
-                .collect(Collectors.toCollection(ArrayList::new));
-
-        sortedEvents.forEach(event1 -> { //for each event1
+        recentEventsOfType.forEach(event1 -> { //for each event1
             ArrayList<Event> clusteredEvents = new ArrayList<>();
             clusteredEvents.add(event1);
 
             long timestampEvent1 = Helper.dateToTimestamp(event1.getTimestamp());
+            long negativeTimeDif = timestampEvent1 - ACCEPTABLE_TIME_DIFF;
+            long positiveTimeDif = timestampEvent1 + ACCEPTABLE_TIME_DIFF;
 
-            for (Event event2 : sortedEvents) { //loop the arraylist again
+            for (Event event2 : recentEventsOfType) { //loop the arraylist again
+
+                long timestampEvent2 = Helper.dateToTimestamp(event2.getTimestamp());
+
                 if (event1.equals(event2)) { //if it's the same event continue to next event2
                     continue;
                 }
 
-                long timestampEvent2 = Helper.dateToTimestamp(event2.getTimestamp());
-
-                if (! (timestampEvent1 + ACCEPTABLE_TIME_DIFF >= timestampEvent2)) {
-                    //the list is ordered by timestamp so if event2 is not within the acceptable time difference between events,
-                    // no other event2 will be and we can move to the next event1
-                    break;
+                if (! ((negativeTimeDif <= timestampEvent2) && (positiveTimeDif >= timestampEvent2))) { //checks if the events have a maximum time difference of 'ACCEPTABLE_TIME_DIFF'
+                    continue;
                 }
 
                 double distance = Helper.calculateGeoDistance(event1.getLatitude(), event1.getLongitude(), event2.getLatitude(), event2.getLongitude());
@@ -210,13 +189,11 @@ Log.d("LISTENER FINISHED","OK");
             if (clusteredEvents.size() >= CLUSTER_NUM) { // size (including the original event) >= CLUSTER_NUM
                 clusteredEventLists.add(clusteredEvents);
             }
-
         });
 
         clusteredEventLists.forEach(outerList -> { //for every list that clustered events
             boolean currentListRemoved = false;
             Event originalEvent = outerList.get(0);
-            Log.d("LISTS NUM", String.valueOf(clusteredEventLists.size()));
 
             for (int innerListIndex = clusteredEventLists.indexOf(outerList)+1 ; innerListIndex < clusteredEventLists.size(); innerListIndex++) {  //get the indices of the next lists after this outerList
                 ArrayList<Event> innerList = clusteredEventLists.get(innerListIndex);
@@ -240,12 +217,8 @@ Log.d("LISTENER FINISHED","OK");
         });
 
         clusteredEventLists.removeAll(listsToRemove);
-
-        clusteredEventLists.forEach(list -> {
-            //every list is made by points near the first one (location and time wise) and we only keep the largest similar lists
-            //so we recommend the first event in each list because among other similar points, that is the one that led to the best list
-            recommendedAlerts.add(list.get(0));
-        });
-        return recommendedAlerts;
+        
+        //return the event lists, with each containing events that refer to the same disaster
+        return clusteredEventLists;
     }
 }

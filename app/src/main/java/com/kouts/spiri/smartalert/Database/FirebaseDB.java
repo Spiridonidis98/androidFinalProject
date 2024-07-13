@@ -46,6 +46,10 @@ public class FirebaseDB {
         return events;
     }
 
+    public static DatabaseReference getUserReference() {
+        return user;
+    }
+
     public static void addUser(User newUser, final FirebaseUserListener listener) {
         if(auth.getCurrentUser() != null) {
             DatabaseReference newUserRef = user.push();

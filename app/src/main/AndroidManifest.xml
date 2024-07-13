@@ -20,7 +20,7 @@
         android:theme="@style/Theme.SmartAlert"
         tools:targetApi="31">
         <activity
-            android:name=".Functionality.TestActivity"
+            android:name=".Functionality.RecommendEventsManagerActivity"
             android:exported="false">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
@@ -59,8 +59,6 @@
 
              <intent-filter>
              <action android:name="android.intent.action.MAIN" />
-
-
              <category android:name="android.intent.category.LAUNCHER" />
              </intent-filter>
         </activity>
