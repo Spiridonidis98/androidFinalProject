@@ -7,6 +7,7 @@ import static com.kouts.spiri.smartalert.Assistance.Helper.timestampToDate;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;;
 import android.content.Context;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
@@ -34,6 +36,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Assistance.UserLocation;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.MainActivity;
 import com.kouts.spiri.smartalert.POJOs.Event;
@@ -44,27 +47,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class CreateEventFragment extends Fragment {
+public class CreateEventFragment extends Fragment implements UserLocation.LocationCallBackListener{
     private View view;
 
-    private static final long LOCATION_UPDATES_TIME = 3000; //miliseconds
-    private static final int LOCATION_CODE = 0;
     private static final int READ_IMAGES_CODE = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 22;
+    private static final int REQUEST_PERMISSION = 200;
     Button addEventButton;
     Spinner spinner;
     String selectedSpinnerItem;
     EditText comment;
     ImageView image;
-    LocationManager locationManager;
     double currentLongitude, currentLatitude;
     long timestamp;
     Uri selectedImage;
-
-    LocationListener locationListener = location -> { //finds gps location and timestamp
-        currentLongitude = location.getLongitude();
-        currentLatitude = location.getLatitude();
-        timestamp = location.getTime();
-    };
+    private Location location;
+    UserLocation userLocation;
     public CreateEventFragment() {
         // Required empty public constructor
     }
@@ -86,6 +84,7 @@ public class CreateEventFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_create_event, container, false);
 
+
         Helper.validateCurrentUser(view.getContext());
 
         addEventButton = view.findViewById(R.id.buttonSubmitEvent);
@@ -98,11 +97,14 @@ public class CreateEventFragment extends Fragment {
 
         image.setImageResource(R.drawable.camera);
 
-        locationManager = (LocationManager)  requireActivity().getSystemService(Context.LOCATION_SERVICE);
-        locationManager =  requireActivity().getSystemService(LocationManager.class);
-
         selectImageListener();
         selectEventTypeListener();
+
+        userLocation = new UserLocation(view.getContext(),this.getActivity(),this);
+
+        userLocation.startLocationUpdates();
+
+        this.location = userLocation.getLocation();
 //        startLocationUpdates();
 
         return view;
@@ -147,7 +149,7 @@ public class CreateEventFragment extends Fragment {
             Helper.showMessage(view.getContext(), "Error", "No selected event type found");
             return;
         }
-        if (currentLongitude == 0 || currentLatitude==0) {
+        if (this.location == null) {
             Helper.showToast(view.getContext(), "Location not found, please try again", Toast.LENGTH_LONG);
             return;
         }
@@ -162,7 +164,7 @@ public class CreateEventFragment extends Fragment {
         } else { //include selected image to Event
             String imageUUID = UUID.randomUUID().toString();
             String userUID = FirebaseDB.getAuth().getUid();
-            event = new Event(userUID, selectedEventType, currentLongitude, currentLatitude, timestampToDate(timestamp), comment.getText().toString(), imageUUID);
+            event = new Event(userUID, selectedEventType, this.location.getLongitude(), this.location.getLatitude(), timestampToDate(this.location.getTime()), comment.getText().toString(), imageUUID);
             uploadImageToFirebase(selectedImage, imageUUID, userUID);
         }
         FirebaseDB.addEvent(event, new FirebaseDB.FirebaseEventListener() {
@@ -203,21 +205,14 @@ public class CreateEventFragment extends Fragment {
                 });
     }
 
-//    public void startLocationUpdates() {
-//        if (ActivityCompat.checkSelfPermission(view.getContext(), //checks that we have the permission IN THE MANIFEST
-//                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) { //if we don't have it :
-//
-//            ActivityCompat.requestPermissions(MainActivity,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_CODE); //actually asks the user for the permission
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return;
-//        }
-//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATES_TIME, 0, locationListener); //updates the location, assuming we have the permission
-//    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        this.location = location;
+    }
+
+    //Functionality to take pictures from the camera
+    //here we check for permissions
+
 
 }

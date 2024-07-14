@@ -1,5 +1,7 @@
 package com.kouts.spiri.smartalert.Functionality;
 
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -23,16 +25,15 @@ import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Functionality.Fragments.EventStatisticsFragment;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
-
-public class MainActivity extends AppCompatActivity {
-    ImageView settingsButton;
-    Button reportEventButton;
+import com.kouts.spiri.smartalert.Assistance.UserLocation;
+public class MainActivity extends AppCompatActivity implements UserLocation.LocationCallBackListener {
     private static final int MENU_EVENT_STATISTICS = R.id.eventStatisticsFragment;
     private static final int MENU_CREATE_EVENT = R.id.createEventFragment;
     BottomNavigationView bottomNavigationView;
 
     EventStatisticsFragment eventStatisticsFragment = new EventStatisticsFragment();
     CreateEventFragment createEventFragment = new CreateEventFragment();
+    private UserLocation userLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        userLocation = new UserLocation(this,this,this);
 
         if (Helper.user == null) {
             getUserInfo(this.getCurrentFocus());
@@ -73,6 +76,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        userLocation.startLocationUpdates();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        userLocation.stopLocationUpdates();
+    }
+
     public void getUserInfo(View view) {
         FirebaseDB.getUserInfo(FirebaseDB.getAuth().getUid(), new FirebaseDB.FirebaseUserListener() {
             @Override
@@ -90,5 +105,23 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    //here we request Location Permissions
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == UserLocation.LOCATION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                userLocation.startLocationUpdates();
+            } else {
+                // Permission denied, handle accordingly
+            }
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
     }
 }
