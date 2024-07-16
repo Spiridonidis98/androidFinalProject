@@ -18,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
@@ -43,6 +44,7 @@ import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -213,6 +215,5 @@ public class CreateEventFragment extends Fragment implements UserLocation.Locati
 
     //Functionality to take pictures from the camera
     //here we check for permissions
-
 
 }
