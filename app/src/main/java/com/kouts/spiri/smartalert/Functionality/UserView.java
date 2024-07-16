@@ -40,6 +40,7 @@ public class UserView extends DialogFragment {
             @Override
             public void onClick(View v) {
                 FirebaseDB.getAuth().signOut();
+                Helper.user = null;
                 Intent intent = new Intent(v.getContext(), LoginActivity.class);
                 startActivity(intent);
                 // Handle button click

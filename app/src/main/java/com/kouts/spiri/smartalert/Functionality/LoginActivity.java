@@ -25,6 +25,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.database.DataSnapshot;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
 
 public class LoginActivity extends AppCompatActivity {
@@ -40,6 +41,8 @@ public class LoginActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        Helper.user = null;
 
         ValidateUser(this);
 
@@ -133,14 +136,31 @@ public class LoginActivity extends AppCompatActivity {
     }
     private void ValidateUser(Context c) {
         String userId = FirebaseDB.getAuth().getUid();
+
         if (userId != null) {
-            FirebaseDB.getUserReference().child(userId).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            FirebaseDB.getUserInfo(FirebaseDB.getAuth().getUid(), new FirebaseDB.FirebaseUserListener() {
                 @Override
-                public void onSuccess(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChildren()) {
+                public void onUserRetrieved(User user) {
+                    if (user != null) {
+                        Helper.user = user;
                         Intent intent = new Intent(c, MainActivity.class);
                         startActivity(intent);
                     }
+                    else {
+                        Log.d("USER NOT FOUND ERROR", "User not found in the database");
+                        Helper.showMessage(c, "Error","User not found in the database");
+                    }
+                }
+
+                @Override
+                public void onUserAdded() {
+
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.d("USER NOT FOUND ERROR", "User not found in the database");
+                    Helper.showMessage(c, "Error","User not found in the database");
                 }
             });
         }

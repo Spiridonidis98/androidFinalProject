@@ -181,7 +181,7 @@ public class EventStatisticsFragment extends Fragment {
         eventComment.setText(event.getComment());
 
         GradientDrawable border = (GradientDrawable) eventView.getBackground();
-        border.setStroke(2, getColorForEvent(event.getAlertType()));
+        border.setStroke(5, getColorForEvent(event.getAlertType()));
         reportContainer.addView(eventView);
     }
 

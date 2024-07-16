@@ -8,5 +8,5 @@
         android:id="@+id/eventStatisticsFragment"
         android:name="com.kouts.spiri.smartalert.Functionality.Fragments.EventStatisticsFragment"
         android:label="Event Statistics"
-        tools:layout="@layout/event_statistics_fragment" />
+        tools:layout="@layout/fragment_event_statistics" />
 </navigation>

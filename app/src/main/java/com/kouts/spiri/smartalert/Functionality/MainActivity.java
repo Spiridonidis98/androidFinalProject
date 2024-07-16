@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.kouts.spiri.smartalert.Functionality.Fragments.CivilSafetyFunctionalityFragment;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CreateEventFragment;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Assistance.Helper;
@@ -29,12 +30,11 @@ import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
 import com.kouts.spiri.smartalert.Assistance.UserLocation;
 public class MainActivity extends AppCompatActivity implements UserLocation.LocationCallBackListener {
-    private static final int MENU_EVENT_STATISTICS = R.id.eventStatisticsFragment;
-    private static final int MENU_CREATE_EVENT = R.id.createEventFragment;
     BottomNavigationView bottomNavigationView;
 
     EventStatisticsFragment eventStatisticsFragment = new EventStatisticsFragment();
     CreateEventFragment createEventFragment = new CreateEventFragment();
+    CivilSafetyFunctionalityFragment civilSafetyFunctionalityFragment = new CivilSafetyFunctionalityFragment();
     private UserLocation userLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,27 +56,30 @@ public class MainActivity extends AppCompatActivity implements UserLocation.Loca
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
 
-        reportEventButton = findViewById(R.id.buttonReportEvent);
-        Button buttonWorkerTest = findViewById(R.id.buttonWorkerTest);
-        Button buttonEventStatistics = findViewById(R.id.buttonEventStatistics);
-
-
+        if(Helper.user != null && Helper.user.getType() == 0) {
+            bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_civil);
+        }
+        else {
+            bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
+        }
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-                if(menuItem.getItemId() == MENU_EVENT_STATISTICS) {
+                if(menuItem.getItemId() ==  R.id.eventStatisticsFragment) {
                     getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
                 }
-                else if(menuItem.getItemId() == MENU_CREATE_EVENT) {
+                else if(menuItem.getItemId() == R.id.createEventFragment) {
                     getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
                 }
-                else {
+                else if(menuItem.getItemId() == R.id.personInfo) {
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     UserView userView = UserView.newInstance();
-
                     userView.show(fragmentManager, "user_view");
+                }
+                else if (menuItem.getItemId() == R.id.civilSafetyFunctionality) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, civilSafetyFunctionalityFragment).commit();
                 }
                 return true;
             }
@@ -93,27 +96,6 @@ public class MainActivity extends AppCompatActivity implements UserLocation.Loca
     protected void onPause() {
         super.onPause();
         userLocation.stopLocationUpdates();
-        reportEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), CreateEventActivity.class);
-                startActivity(intent);
-            }
-        });
-        buttonEventStatistics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), EventStatisticsActivity.class);
-                startActivity(intent);
-            }
-        });
-        buttonWorkerTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), RecommendEventsManagerActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     public void getUserInfo(View view) {

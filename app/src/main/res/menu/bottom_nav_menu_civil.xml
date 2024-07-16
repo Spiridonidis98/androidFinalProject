@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/eventStatisticsFragment"
+        android:title="Events"
+        android:icon="@drawable/stats"/>
+    <item
+        android:id="@+id/civilSafetyFunctionality"
+        android:title="Civil Functionality"
+        android:icon="@drawable/announcement"/>
+
+    <item
+        android:id="@+id/personInfo"
+        android:title="Settings"
+        android:icon="@drawable/person"/>
+</menu>
