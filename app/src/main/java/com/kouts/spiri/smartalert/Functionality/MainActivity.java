@@ -4,7 +4,9 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+
 import android.view.MenuItem;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -46,13 +48,19 @@ public class MainActivity extends AppCompatActivity implements UserLocation.Loca
         });
 
         userLocation = new UserLocation(this,this,this);
-
+        Helper.validateCurrentUser(this);
         if (Helper.user == null) {
             getUserInfo(this.getCurrentFocus());
 
         }
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
+
+        reportEventButton = findViewById(R.id.buttonReportEvent);
+        Button buttonWorkerTest = findViewById(R.id.buttonWorkerTest);
+        Button buttonEventStatistics = findViewById(R.id.buttonEventStatistics);
+
+
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -73,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements UserLocation.Loca
                 return true;
             }
         });
-
     }
 
     @Override
@@ -86,13 +93,39 @@ public class MainActivity extends AppCompatActivity implements UserLocation.Loca
     protected void onPause() {
         super.onPause();
         userLocation.stopLocationUpdates();
+        reportEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), CreateEventActivity.class);
+                startActivity(intent);
+            }
+        });
+        buttonEventStatistics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), EventStatisticsActivity.class);
+                startActivity(intent);
+            }
+        });
+        buttonWorkerTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), RecommendEventsManagerActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void getUserInfo(View view) {
         FirebaseDB.getUserInfo(FirebaseDB.getAuth().getUid(), new FirebaseDB.FirebaseUserListener() {
             @Override
             public void onUserRetrieved(User user) {
-                Helper.user = user;
+                if (user != null) {
+                    Helper.user = user;
+                }
+                else {
+                    Log.d("USER NOT FOUND ERROR", "User not found in the database");
+                }
             }
 
             @Override

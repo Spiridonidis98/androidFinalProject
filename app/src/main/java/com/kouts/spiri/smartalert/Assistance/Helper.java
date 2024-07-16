@@ -9,8 +9,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.LoginActivity;
 import com.kouts.spiri.smartalert.POJOs.User;
@@ -68,10 +75,22 @@ public abstract class Helper {
     }
 
     public static void validateCurrentUser(Context context) {
-        if (FirebaseDB.getAuth().getUid() == null) { //if user not found go to login screen
+        if (FirebaseDB.getAuth().getCurrentUser() == null) { //if user not found in authentication go to login screen
             Helper.showToast(context, "Please log in", Toast.LENGTH_LONG);
             Intent intent = new Intent(context, LoginActivity.class);
             startActivity(context,intent,null);
+        } else {
+            String userId = FirebaseDB.getAuth().getCurrentUser().getUid();
+            FirebaseDB.getUserReference().orderByChild("uid").equalTo(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (! task.getResult().exists()) { //if user not found in realtime database go to login screen
+                        Helper.showToast(context, "Please log in", Toast.LENGTH_LONG);
+                        Intent intent = new Intent(context, LoginActivity.class);
+                        startActivity(context, intent, null);
+                    }
+                }
+            });
         }
     }
 
@@ -118,5 +137,18 @@ public abstract class Helper {
         String convertedDate = year + "-" + month + "-" + day;
 
         return convertedDate;
+    }
+
+    //calculate the distance between 2 points on the map
+    public static double calculateGeoDistance(double lat1, double lon1, double lat2, double lon2) {
+        final double EARTH_RADIUS = 6371.0; //radius of the earth in km
+
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return EARTH_RADIUS * c;
     }
 }
