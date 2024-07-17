@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primarycolor"
-            android:text="Comment">
+            android:text="@string/comment">
         </TextView>
 
         <EditText
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:gravity="start|top"
-            android:hint="Comments"
+            android:hint="@string/comments"
             android:background="@drawable/datepicker_button"
             android:padding="16dp"
             android:textColor="@color/primarycolor"
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primarycolor"
-            android:text="Type of Event" />
+            android:text="@string/type_of_event" />
         <Spinner
             android:id="@+id/spinnerEventTypes"
             android:layout_width="match_parent"
@@ -61,7 +61,7 @@
             android:id="@+id/buttonSubmitEvent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Submit Event"></Button>
+            android:text="@string/submit_event"/>
     </LinearLayout>
 
 

@@ -65,7 +65,8 @@ public class RecommendEventsManagerActivity extends AppCompatActivity {
                             String recommendedAlertListsJson = outputData.getString("all_recommended_alert_lists");
 
                             if (recommendedAlertListsJson == null) {
-                                Helper.showMessage(this,"Error","Recommended events could not be retrieved");
+                                String message = getString(R.string.recommended_events_could_not_be_retrieved);
+                                Helper.showMessage(this,"Error",message);
                                 return;
                             }
 

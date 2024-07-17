@@ -104,7 +104,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                             String recommendedAlertListsJson = outputData.getString("all_recommended_alert_lists");
 
                             if (recommendedAlertListsJson == null) {
-                                Helper.showMessage(v.getContext(),"Error","Recommended events could not be retrieved");
+                                String message = getString(R.string.recommended_events_could_not_be_retrieved);
+                                Helper.showMessage(v.getContext(),"Error",message);
                                 return;
                             }
 
@@ -114,7 +115,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                             recommendedAlertLists = gson.fromJson(recommendedAlertListsJson, type); //deserialize
 
                             if(recommendedAlertLists.isEmpty()) {
-                                searchResults.setText("No recoomended alerts were found");
+                                String message = getString(R.string.no_recommended_alerts_were_found);
+                                searchResults.setText(message);
                                 reportContainer.addView(searchResults);
                             }
                             else {
@@ -130,7 +132,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
 
                     }
                     else {
-                        searchResults.setText("No recoomended alerts were found");
+                        String message = getString(R.string.no_recommended_alerts_were_found);
+                        searchResults.setText(message);
                         reportContainer.addView(searchResults);
                     }
                     Log.d("RecommendEventsManagerActivity",recommendedAlertLists.toString() );

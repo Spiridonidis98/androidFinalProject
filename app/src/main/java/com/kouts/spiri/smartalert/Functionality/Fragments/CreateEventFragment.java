@@ -4,21 +4,14 @@ import static android.app.Activity.RESULT_OK;
 
 import static com.kouts.spiri.smartalert.Assistance.Helper.timestampToDate;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;;
-import android.content.Context;
+;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
@@ -44,7 +37,6 @@ import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -148,15 +140,18 @@ public class CreateEventFragment extends Fragment implements UserLocation.Locati
                 .orElse(null);
 
         if (selectedEventType == null) {
-            Helper.showMessage(view.getContext(), "Error", "No selected event type found");
+            String message = getString(R.string.no_selected_event_type_found);
+            Helper.showMessage(view.getContext(), "Error", message);
             return;
         }
         if (this.location == null) {
-            Helper.showToast(view.getContext(), "Location not found, please try again", Toast.LENGTH_LONG);
+            String message = getString(R.string.location_not_found_please_try_again);
+            Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
             return;
         }
         if (comment.getText().toString().trim().isEmpty()) {
-            Helper.showToast(view.getContext(), "Please add a comment", Toast.LENGTH_LONG);
+            String message = getString(R.string.please_add_a_comment);
+            Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
             return;
         }
 
@@ -174,14 +169,16 @@ public class CreateEventFragment extends Fragment implements UserLocation.Locati
             public void onEventsRetrieved(List<Event> event) {};
             @Override
             public void onEventAdded() {
-                Helper.showToast(view.getContext(), "Event submitted successfully", Toast.LENGTH_LONG);
+                String message = getString(R.string.event_submitted_successfully);
+                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                 startActivity(intent);
             }
 
             @Override
             public void onError(Exception e) {
-                Helper.showMessage(view.getContext(), "Error", "Unknown error occurred. Event could not be submitted");
+                String message = getString(R.string.unknown_error_occurred_event_could_not_be_submitted);
+                Helper.showMessage(view.getContext(), "Error", message);
             }
         });
     }

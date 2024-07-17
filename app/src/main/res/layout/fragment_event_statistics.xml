@@ -23,7 +23,7 @@
                 android:backgroundTint="@color/white"
                 android:background="@drawable/datepicker_button"
                 android:textColor="@color/primarycolor"
-                android:text="Select Date" />
+                android:text="@string/select_date" />
 
             <Button
                 android:id="@+id/buttonDatePickerEnd"
@@ -32,7 +32,7 @@
                 android:layout_marginLeft="10dp"
                 android:background="@drawable/datepicker_button"
                 android:backgroundTint="@color/white"
-                android:text="Select Date"
+                android:text="@string/select_date"
                 android:textColor="@color/primarycolor" />
         </LinearLayout>
 
@@ -44,31 +44,31 @@
                 android:id="@+id/fireCheckbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fire"
+                android:text="@string/fire"
                 android:textColor="#AA4203"
-                android:buttonTint="#AA4203"></CheckBox>
+                android:buttonTint="#AA4203"/>
             <CheckBox
                 android:id="@+id/earthquakeCheckbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Earthquake"
+                android:text="@string/earthquake"
                 android:textColor="#8B4513"
-                android:buttonTint="#8B4513"></CheckBox>
+                android:buttonTint="#8B4513"/>
             <CheckBox
                 android:id="@+id/tornadoCheckbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tornado"
+                android:text="@string/tornado"
                 android:textColor="#808080"
                 android:buttonTint="#808080"
-                ></CheckBox>
+                />
             <CheckBox
                 android:id="@+id/floodCheckbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Flood"
+                android:text="@string/flood"
                 android:textColor="#0000FF"
-                android:buttonTint="#0000FF"></CheckBox>
+                android:buttonTint="#0000FF"/>
 
         </LinearLayout>
 
@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/primarycolor"
             android:onClick="getEvents"
-            android:text="Search Events" />
+            android:text="@string/search_events" />
 
 
         <ScrollView

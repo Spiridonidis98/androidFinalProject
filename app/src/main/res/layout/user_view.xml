@@ -12,7 +12,7 @@
         android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="User Info"
+        android:text="@string/user_info"
         android:textAlignment="center"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -41,5 +41,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#0E2F51"
-        android:text="Logout" />
+        android:text="@string/logout" />
 </LinearLayout>

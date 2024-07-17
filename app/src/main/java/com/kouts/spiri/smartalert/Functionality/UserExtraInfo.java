@@ -43,7 +43,8 @@ public class UserExtraInfo extends AppCompatActivity {
 
     public void registerUser(View view) {
         if(lastname.getText().length() == 0 || name.getText().length() == 0) {
-            Helper.showMessage(view.getContext(), "Warning", "Required Data are missing");
+            String message = getString(R.string.required_data_is_missing);
+            Helper.showMessage(view.getContext(), "Warning", message);
             return;
         }
 
@@ -57,14 +58,16 @@ public class UserExtraInfo extends AppCompatActivity {
 
             @Override
             public void onUserAdded() {
-                Helper.showToast(view.getContext(), "User created successfully", Toast.LENGTH_LONG);
+                String message = getString(R.string.user_created_successfully);
+                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                 startActivity(intent);
             }
 
             @Override
             public void onError(Exception e) {
-                Helper.showMessage(view.getContext(), "Error", "Unknown error occurred. User could not be submitted");
+                String message = getString(R.string.unknown_error_occurred_user_could_not_be_submitted);
+                Helper.showMessage(view.getContext(), "Error", message);
             }
         });
     }
