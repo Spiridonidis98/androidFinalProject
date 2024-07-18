@@ -21,6 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.LoginActivity;
 import com.kouts.spiri.smartalert.POJOs.User;
+import com.kouts.spiri.smartalert.R;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -75,8 +76,9 @@ public abstract class Helper {
     }
 
     public static void validateCurrentUser(Context context) {
+        String message = context.getString(R.string.please_log_in);
         if (FirebaseDB.getAuth().getCurrentUser() == null) { //if user not found in authentication go to login screen
-            Helper.showToast(context, "Please log in", Toast.LENGTH_LONG);
+            Helper.showToast(context, message, Toast.LENGTH_LONG);
             Intent intent = new Intent(context, LoginActivity.class);
             startActivity(context,intent,null);
         } else {
@@ -85,7 +87,7 @@ public abstract class Helper {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (! task.getResult().exists()) { //if user not found in realtime database go to login screen
-                        Helper.showToast(context, "Please log in", Toast.LENGTH_LONG);
+                        Helper.showToast(context, message, Toast.LENGTH_LONG);
                         Intent intent = new Intent(context, LoginActivity.class);
                         startActivity(context, intent, null);
                     }

@@ -70,6 +70,7 @@ public class RecommendEventsWorker extends Worker {
 
                 if (!snapshot.exists()) {
                     Log.d("RecommendedEventsWorker", "There are currently no matching data in the database");
+                    countDownLatch.countDown(); //allow the other threads to start
                     return;
                 }
 
@@ -80,6 +81,7 @@ public class RecommendEventsWorker extends Worker {
                     event = snap.getValue(Event.class);
                     if (event == null) {
                         Log.d("RecommendedEventsWorker", "There are currently no events in the database");
+                        countDownLatch.countDown(); //allow the other threads to start
                         return;
                     }
 

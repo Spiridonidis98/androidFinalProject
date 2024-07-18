@@ -129,15 +129,18 @@ public class CreateEventActivity extends AppCompatActivity {
                 .orElse(null);
 
         if (selectedEventType == null) {
-            Helper.showMessage(this, "Error", "No selected event type found");
+            String message = getString(R.string.no_selected_event_type_found);
+            Helper.showMessage(this, "Error", message);
             return;
         }
         if (currentLongitude == 0 || currentLatitude==0) {
-            Helper.showToast(this, "Location not found, please try again", Toast.LENGTH_LONG);
+            String message = getString(R.string.location_not_found_please_try_again);
+            Helper.showToast(this, message, Toast.LENGTH_LONG);
             return;
         }
         if (comment.getText().toString().trim().isEmpty()) {
-            Helper.showToast(this, "Please add a comment", Toast.LENGTH_LONG);
+            String message = getString(R.string.please_add_a_comment);
+            Helper.showToast(this, message, Toast.LENGTH_LONG);
             return;
         }
 
@@ -155,14 +158,16 @@ public class CreateEventActivity extends AppCompatActivity {
             public void onEventsRetrieved(List<Event> event) {};
             @Override
             public void onEventAdded() {
-                Helper.showToast(view.getContext(), "Event submitted successfully", Toast.LENGTH_LONG);
+                String message = getString(R.string.event_submitted_successfully);
+                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                 startActivity(intent);
             }
 
             @Override
             public void onError(Exception e) {
-                Helper.showMessage(view.getContext(), "Error", "Unknown error occurred. Event could not be submitted");
+                String message = getString(R.string.unknown_error_occurred_event_could_not_be_submitted);
+                Helper.showMessage(view.getContext(), "Error", message);
             }
         });
     }

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartAlert</string>
+    <string name="submit_event">Καταχώρησε περιστατικό</string>
+    <string name="comments">Σχόλια</string>
+    <string name="type_of_event">Είδος γεγονότος</string>
+    <string name="add_image">Πρόσθεσε εικόνα</string>
+    <string name="login">Σύνδεση</string>
+    <string name="welcome_to_smartalert">Καλώς ήρθατε στο SmartAlert</string>
+    <string name="no_account_register">Δεν έχετε λογαριασμό; Εγγραφείτε.</string>
+    <string name="register">Εγγραφή</string>
+    <string name="already_have_an_account_login">Έχετε λογαριασμό; Συνδεθείτε.</string>
+    <string name="name">Όνομα</string>
+    <string name="lastname">Επώνυμο</string>
+    <string name="complete_register">Ολοκλήρωση εγγραφής</string>
+    <string name="user_extra_info">Πρόσθετες πληροφορίες χρήστη</string>
+    <string name="event_title">Τίτλος εγονότος</string>
+    <string name="title">Τίτλος</string>
+    <string name="message">Μήνυμα</string>
+    <string name="search_events">Αναζήτηση Γεγονότος</string>
+    <string name="comment">Σχόλιο</string>
+    <string name="flood">Πλημμύρα</string>
+    <string name="tornado">Ανεμοστρόβιλος</string>
+    <string name="earthquake">Σεισμός</string>
+    <string name="fire">Φωτιά</string>
+    <string name="select_date">"Επιλέξτε Ημερομηνία "</string>
+    <string name="user_info">Στοιχεία Χρήστη</string>
+    <string name="logout">Αποσύνδεση</string>
+    <string name="recommended_events_could_not_be_retrieved">Δεν μπόρεσαν να βρεθούν προτεινόμενα γεγονότα</string>
+    <string name="please_log_in">Παρακαλώ συνδεθείτε</string>
+    <string name="no_recommended_alerts_were_found">Δεν βρέθηκαν προτεινόμενες ειδοποιήσεις</string>
+    <string name="no_selected_event_type_found">Δεν βρέθηκε επιλεγμένο είδος γεγονότος</string>
+    <string name="location_not_found_please_try_again">Δεν βρέθηκε τοποθεσία, παρακαλώ προσπαθήστε ξανά</string>
+    <string name="please_add_a_comment">Παρακαλώ προσθέστε σχόλιο</string>
+    <string name="event_submitted_successfully">Το γεγονός καταχωρήθηκε επιτυχώς</string>
+    <string name="unknown_error_occurred_event_could_not_be_submitted">Προέκυψε σφάλμα. Το γεγονός δεν μπόρεσε να καταχωρηθεί</string>
+    <string name="no_events_found_for_the_given_criteria">"Δεν βρέθηκαν γεγονότα με αυτά τα κριτήρια "</string>
+    <string name="user_created_successfully">Ο χρήστης δημιουργήθηκε επιτυχώς</string>
+    <string name="user_logged_in_successfully">Ο χρήστης συνδέθηκε επιτυχώς</string>
+    <string name="user_not_found_in_the_database">Ο χρήστης δεν βρέθηκε στη βάση δεδομένων</string>
+    <string name="required_data_is_missing">Απουσία απαραίτητων δεδομένων</string>
+    <string name="unknown_error_occurred_user_could_not_be_submitted">Προέκυψε σφάλμα. Ο χρήστης δεν μπόρεσε να καταχωρηθεί</string>
+</resources>

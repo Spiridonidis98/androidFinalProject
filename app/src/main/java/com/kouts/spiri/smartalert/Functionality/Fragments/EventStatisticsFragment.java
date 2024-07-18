@@ -2,7 +2,6 @@ package com.kouts.spiri.smartalert.Functionality.Fragments;
 
 import android.app.DatePickerDialog;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -111,7 +110,8 @@ public class EventStatisticsFragment extends Fragment {
             @Override
             public void onEventsRetrieved(List<Event> events) {
                 if (events == null || events.isEmpty()) {
-                    Helper.showMessage(v.getContext(), "Warning", "No events found for the given criteria");
+                    String message = getString(R.string.no_events_found_for_the_given_criteria);
+                    Helper.showMessage(v.getContext(), "Warning", message);
                     return;
                 }
                 fixSearchResultText(events);

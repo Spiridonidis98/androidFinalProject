@@ -91,7 +91,8 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
-                                Helper.showToast(view.getContext(), "User created successfully", Toast.LENGTH_LONG);
+                                String message = getString(R.string.user_created_successfully);
+                                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
                                 Intent intent = new Intent(view.getContext(), UserExtraInfo.class);
                                 intent.putExtra("email", registerEmail.getText().toString());
                                 startActivity(intent);
@@ -117,7 +118,8 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
-                                Helper.showToast(view.getContext(), "User logged in successfully", Toast.LENGTH_LONG);
+                                String message = getString(R.string.user_logged_in_successfully);
+                                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
                                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                                 startActivity(intent);
 
@@ -148,7 +150,8 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     else {
                         Log.d("USER NOT FOUND ERROR", "User not found in the database");
-                        Helper.showMessage(c, "Error","User not found in the database");
+                        String message = getString(R.string.user_not_found_in_the_database);
+                        Helper.showMessage(c, "Error",message);
                     }
                 }
 
@@ -160,7 +163,8 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onError(Exception e) {
                     Log.d("USER NOT FOUND ERROR", "User not found in the database");
-                    Helper.showMessage(c, "Error","User not found in the database");
+                    String message = getString(R.string.user_not_found_in_the_database);
+                    Helper.showMessage(c, "Error",message);
                 }
             });
         }

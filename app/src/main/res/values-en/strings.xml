@@ -1,13 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">SmartAlert</string>
-    <string-array name="spinnerEventTypes">
-        <item>Fire</item>
-        <item>Flood</item>
-        <item>Earthquake</item>
-        <item>Tornado</item>
-    </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="submit_event">Submit Event</string>
     <string name="comments">Comments</string>
     <string name="type_of_event">Type of Event</string>
@@ -17,8 +10,6 @@
     <string name="no_account_register">No Account? Register.</string>
     <string name="register">Register</string>
     <string name="already_have_an_account_login">Already have an account? Login.</string>
-    <string name="button" translatable="false">Button</string>
-    <string name="textview" translatable="false">TextView</string>
     <string name="name">Name</string>
     <string name="lastname">Lastname</string>
     <string name="complete_register">Complete register</string>
