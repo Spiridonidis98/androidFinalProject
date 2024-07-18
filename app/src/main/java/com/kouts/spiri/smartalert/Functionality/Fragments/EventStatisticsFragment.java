@@ -1,8 +1,12 @@
 package com.kouts.spiri.smartalert.Functionality.Fragments;
 
 import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -23,6 +27,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
+import com.kouts.spiri.smartalert.Functionality.MapsActivity;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
@@ -177,6 +182,7 @@ public class EventStatisticsFragment extends Fragment {
 
         View eventView = LayoutInflater.from(view.getContext()).inflate(R.layout.event, reportContainer, false);
 
+        eventView.setOnClickListener( v -> showEventInfo(event));
         TextView eventType = eventView.findViewById(R.id.event_type);
         TextView eventComment = eventView.findViewById(R.id.event_comment);
         ImageView mapIcon = eventView.findViewById(R.id.map_icon);
@@ -212,6 +218,7 @@ public class EventStatisticsFragment extends Fragment {
         FirebaseDB.getImageFromStorage(event.getImage(), new FirebaseDB.FirebaseStorageListener() {
             @Override
             public void onImageRetrieved(Uri image) {
+                event.setImageURI(image);
                 Glide.with(EventStatisticsFragment.this)
                         .load(image)
                         .error(R.drawable.home)
@@ -223,5 +230,49 @@ public class EventStatisticsFragment extends Fragment {
                 Log.d("test", e.toString());
             }
         });
+    }
+
+    private void showEventInfo(Event event) {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.event_info);
+
+        //initialize eventInfo view
+        ImageView closeIcon = dialog.findViewById(R.id.closeEventIcon);
+        ImageView imageView = dialog.findViewById(R.id.eventImage);
+        ImageView mapIcon = dialog.findViewById(R.id.eventInfoLocationIcon);
+
+        TextView eventType = dialog.findViewById(R.id.eventInfoType);
+        TextView eventTime = dialog.findViewById(R.id.eventInfoTime);
+        TextView eventComment = dialog.findViewById(R.id.eventInfoComment);
+
+        closeIcon.setOnClickListener(v -> dialog.dismiss());
+
+        eventType.setText(event.getAlertType() + "");
+        eventTime.setText(event.getTimestamp());
+        eventComment.setText(event.getComment());
+
+        Glide.with(EventStatisticsFragment.this)
+                .load(event.getImageURI())
+                .error(R.drawable.home)
+                .into(imageView);
+
+        mapIcon.setOnClickListener(v -> {
+            Location location = new Location(LocationManager.GPS_PROVIDER);
+            location.setLatitude(event.getLatitude());
+            location.setLongitude(event.getLongitude());
+
+            Intent intent = new Intent(getContext(), MapsActivity.class);
+            // Create Intent using LocationUtils method
+            intent.putExtra("Location", location);
+            intent.putExtra("EventType", event.getAlertType());
+            intent.putExtra("EventTime", event.getTimestamp());
+
+            startActivity(intent);
+
+        });
+
+        dialog.show();
+
+
     }
 }

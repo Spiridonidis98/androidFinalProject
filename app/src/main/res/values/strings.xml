@@ -49,4 +49,5 @@
     <string name="user_not_found_in_the_database">User not found in the database</string>
     <string name="required_data_is_missing">Required data is missing</string>
     <string name="unknown_error_occurred_user_could_not_be_submitted">Unknown error occurred. User could not be submitted</string>
+    <string name="title_activity_maps">MapsActivity</string>
 </resources>
