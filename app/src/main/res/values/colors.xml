@@ -4,6 +4,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="backgroundcolor">#4A7BB9EA</color>
     <color name="primarycolor">#0E2F51</color>
+    <color name="fire">#AA4203</color>
+    <color name="flood">#0000FF</color>
+    <color name="torando">#808080</color>
+    <color name="earthquake">#8B4513</color>
 
 
 </resources>
