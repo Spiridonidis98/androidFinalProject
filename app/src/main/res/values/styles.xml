@@ -15,7 +15,7 @@
     </style>
 
     <style name="BottomNavigationViewStyle" parent="Widget.Design.BottomNavigationView">
-        <item name="itemIconTint">@color/backgroundcolor</item>
+        <item name="itemIconTint">@color/white</item>
         <item name="itemTextColor">@color/primarycolor</item>
         <item name="android:background">?android:attr/windowBackground</item>
     </style>

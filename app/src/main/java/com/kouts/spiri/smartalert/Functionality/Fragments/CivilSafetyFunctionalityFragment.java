@@ -97,8 +97,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                     ArrayList<ArrayList<Event>> recommendedAlertLists = new ArrayList<>();
 
                     if (workInfo!=null) {
-                        if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
 
+                        if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
 
                             Data outputData = workInfo.getOutputData();
                             String recommendedAlertListsJson = outputData.getString("all_recommended_alert_lists");

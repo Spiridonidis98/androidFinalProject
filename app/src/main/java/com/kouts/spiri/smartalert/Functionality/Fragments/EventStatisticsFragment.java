@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.POJOs.Event;
@@ -171,6 +173,8 @@ public class EventStatisticsFragment extends Fragment {
     }
 
     public void addEventToLayout(Event event) {
+
+
         View eventView = LayoutInflater.from(view.getContext()).inflate(R.layout.event, reportContainer, false);
 
         TextView eventType = eventView.findViewById(R.id.event_type);
@@ -182,7 +186,9 @@ public class EventStatisticsFragment extends Fragment {
 
         GradientDrawable border = (GradientDrawable) eventView.getBackground();
         border.setStroke(5, getColorForEvent(event.getAlertType()));
+        getEventImage(event, mapIcon);
         reportContainer.addView(eventView);
+
     }
 
     private int getColorForEvent(EventTypes type) {
@@ -198,5 +204,24 @@ public class EventStatisticsFragment extends Fragment {
             default:
                 return Color.parseColor("#FFFFFF");
         }
+    }
+
+    //getting event image
+    private void getEventImage(Event event, ImageView imageView) {
+
+        FirebaseDB.getImageFromStorage(event.getImage(), new FirebaseDB.FirebaseStorageListener() {
+            @Override
+            public void onImageRetrieved(Uri image) {
+                Glide.with(EventStatisticsFragment.this)
+                        .load(image)
+                        .error(R.drawable.home)
+                        .into(imageView);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.d("test", e.toString());
+            }
+        });
     }
 }
