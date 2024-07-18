@@ -30,7 +30,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
 import com.kouts.spiri.smartalert.Assistance.Helper;
-import com.kouts.spiri.smartalert.Assistance.UserLocation;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.MainActivity;
 import com.kouts.spiri.smartalert.POJOs.Event;
@@ -41,7 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class CreateEventFragment extends Fragment implements UserLocation.LocationCallBackListener{
+public class CreateEventFragment extends Fragment {
     private View view;
 
     private static final int READ_IMAGES_CODE = 1;
@@ -56,7 +55,6 @@ public class CreateEventFragment extends Fragment implements UserLocation.Locati
     long timestamp;
     Uri selectedImage;
     private Location location;
-    UserLocation userLocation;
     public CreateEventFragment() {
         // Required empty public constructor
     }
@@ -93,13 +91,6 @@ public class CreateEventFragment extends Fragment implements UserLocation.Locati
 
         selectImageListener();
         selectEventTypeListener();
-
-        userLocation = new UserLocation(view.getContext(),this.getActivity(),this);
-
-        userLocation.startLocationUpdates();
-
-        this.location = userLocation.getLocation();
-//        startLocationUpdates();
 
         return view;
     }
@@ -202,12 +193,6 @@ public class CreateEventFragment extends Fragment implements UserLocation.Locati
                 }).addOnFailureListener(e -> {
                     Log.e("Upload image", "Failed to upload image", e);
                 });
-    }
-
-
-    @Override
-    public void onLocationChanged(Location location) {
-        this.location = location;
     }
 
     //Functionality to take pictures from the camera

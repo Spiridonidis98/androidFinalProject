@@ -22,6 +22,8 @@
         android:theme="@style/Theme.SmartAlert"
         tools:targetApi="31">
 
+        <service android:name=".Services.LocationService" />
+
         <activity
             android:name=".Functionality.RecommendEventsManagerActivity"
             android:exported="false">

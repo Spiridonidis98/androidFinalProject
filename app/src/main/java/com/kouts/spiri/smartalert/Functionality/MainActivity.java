@@ -1,19 +1,21 @@
 package com.kouts.spiri.smartalert.Functionality;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-
 import android.view.MenuItem;
-
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -21,21 +23,22 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CivilSafetyFunctionalityFragment;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CreateEventFragment;
-import com.kouts.spiri.smartalert.Database.FirebaseDB;
-import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Functionality.Fragments.EventStatisticsFragment;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
-import com.kouts.spiri.smartalert.Assistance.UserLocation;
-public class MainActivity extends AppCompatActivity implements UserLocation.LocationCallBackListener {
-    BottomNavigationView bottomNavigationView;
+import com.kouts.spiri.smartalert.Services.LocationService;
 
+public class MainActivity extends AppCompatActivity {
+    private static final int LOCATION_CODE = 0;
+    BottomNavigationView bottomNavigationView;
     EventStatisticsFragment eventStatisticsFragment = new EventStatisticsFragment();
     CreateEventFragment createEventFragment = new CreateEventFragment();
     CivilSafetyFunctionalityFragment civilSafetyFunctionalityFragment = new CivilSafetyFunctionalityFragment();
-    private UserLocation userLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements UserLocation.Loca
             return insets;
         });
 
-        userLocation = new UserLocation(this,this,this);
+        startLocationService(this);
+
         Helper.validateCurrentUser(this);
         if (Helper.user == null) {
             getUserInfo(this.getCurrentFocus());
@@ -89,13 +93,11 @@ public class MainActivity extends AppCompatActivity implements UserLocation.Loca
     @Override
     protected void onResume() {
         super.onResume();
-        userLocation.startLocationUpdates();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        userLocation.stopLocationUpdates();
     }
 
     public void getUserInfo(View view) {
@@ -126,17 +128,27 @@ public class MainActivity extends AppCompatActivity implements UserLocation.Loca
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == UserLocation.LOCATION_CODE) {
+        if (requestCode == LOCATION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                userLocation.startLocationUpdates();
+                startLocationService(this);
             } else {
                 // Permission denied, handle accordingly
             }
         }
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
+    public void startLocationService(Context context) {
+        if(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_CODE); //actually asks the user for the permission
+
+            //Permission not granted
+            return;
+        }
+
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        startService(serviceIntent);
     }
+
 }
