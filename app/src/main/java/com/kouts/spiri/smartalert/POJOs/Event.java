@@ -1,5 +1,7 @@
 package com.kouts.spiri.smartalert.POJOs;
 
+import android.net.Uri;
+
 public class Event {
     private String uid; //the id of the USER who submitted the event
     private EventTypes alertType;
@@ -7,6 +9,7 @@ public class Event {
     private String timestamp;
     private String comment;
     private String image; //optional
+    private Uri imageURI; //optional
 
     public Event() {}
 
@@ -20,6 +23,8 @@ public class Event {
         this.image = image;
     }
 
+    public void setImageURI(Uri imageURI) { this.imageURI = imageURI;}
+    public Uri getImageURI(){ return this.imageURI;}
     public String getUid() {
         return uid;
     }

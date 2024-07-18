@@ -97,8 +97,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                     ArrayList<ArrayList<Event>> recommendedAlertLists = new ArrayList<>();
 
                     if (workInfo!=null) {
-                        if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
 
+                        if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
 
                             Data outputData = workInfo.getOutputData();
                             String recommendedAlertListsJson = outputData.getString("all_recommended_alert_lists");
@@ -153,8 +153,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         GradientDrawable drawable = (GradientDrawable) ContextCompat.getDrawable(eventView.getContext(), R.drawable.circle);
         if (drawable != null) {
             // Change the color dynamically
-            drawable.setColor(ContextCompat.getColor(eventView.getContext(),R.color.primarycolor)); // replace R.color.new_color with your desired color resource
-
+            drawable.setColor(ContextCompat.getColor(eventView.getContext(), getColorForEventId(listOfEvents.get(0).getAlertType()))); // replace R.color.new_color with your desired color resource
+            drawable.setStroke(8, getColorForEvent(listOfEvents.get(0).getAlertType()));
             eventCount.setBackground(drawable);
         }
         eventCount.setText(listOfEvents.size() + "");
@@ -175,6 +175,21 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                 return Color.parseColor("#8B4513");
             default:
                 return Color.parseColor("#FFFFFF");
+        }
+    }
+
+    private int getColorForEventId(EventTypes type) {
+        switch (type) {
+            case FIRE:
+                return R.color.fire;
+            case FLOOD:
+                return R.color.flood;
+            case TORNADO:
+                return R.color.torando;
+            case EARTHQUAKE:
+                return R.color.earthquake;
+            default:
+                return R.color.white;
         }
     }
 }

@@ -57,14 +57,21 @@ public class MainActivity extends AppCompatActivity {
             getUserInfo(this.getCurrentFocus());
 
         }
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
 
-        if(Helper.user != null && Helper.user.getType() == 0) {
+        //for bottom navigation
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        if(Helper.user.getType() == 0) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, civilSafetyFunctionalityFragment).commit();
             bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_civil);
+            bottomNavigationView.setSelectedItemId(R.id.civilSafetyFunctionality);
         }
         else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
+
             bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
+            bottomNavigationView.setSelectedItemId(R.id.createEventFragment);
+
         }
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {

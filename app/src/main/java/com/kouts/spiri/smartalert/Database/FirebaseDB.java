@@ -1,5 +1,6 @@
 package com.kouts.spiri.smartalert.Database;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.User;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class FirebaseDB {
     private static final FirebaseDatabase database;
     private static final DatabaseReference events;
     private static final DatabaseReference user;
+    private static final DatabaseReference image;
     private static final StorageReference storageRef;
 
     static {
@@ -35,6 +38,7 @@ public class FirebaseDB {
         database = FirebaseDatabase.getInstance();
         events = database.getReference("events");
         user = database.getReference("user");
+        image = database.getReference("images");
         storageRef = FirebaseStorage.getInstance().getReference();
     }
 
@@ -153,6 +157,23 @@ public class FirebaseDB {
     public interface FirebaseEventListener {
         void onEventsRetrieved(List<Event> events);
         void onEventAdded();
+        void onError(Exception e);
+    }
+
+    //here we retrieve the image for the event
+    public static void getImageFromStorage(String imgId, final FirebaseStorageListener listener) {
+        StorageReference imageRef = storageRef.child("images/" + imgId);
+
+
+        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            listener.onImageRetrieved(uri);
+        }).addOnFailureListener(exception -> {
+            listener.onError(exception);
+        });
+    }
+
+    public interface FirebaseStorageListener {
+        void onImageRetrieved(Uri image);
         void onError(Exception e);
     }
 }
