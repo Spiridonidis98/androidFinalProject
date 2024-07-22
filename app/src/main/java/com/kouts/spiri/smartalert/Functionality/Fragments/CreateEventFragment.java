@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import static com.kouts.spiri.smartalert.Assistance.Helper.timestampToDate;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -13,7 +14,10 @@ import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
@@ -50,7 +54,8 @@ import java.util.UUID;
 
 public class CreateEventFragment extends Fragment {
     private View view;
-    static final int REQUEST_IMAGE_CAPTURE = 2;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_PERMISSION_CAMERA = 2;
     private Uri photoURI;
     private static final int READ_IMAGES_CODE = 1;
     private static final int REQUEST_PERMISSION = 200;
@@ -100,6 +105,16 @@ public class CreateEventFragment extends Fragment {
         selectImageListener();
         selectEventTypeListener();
 
+        // Check for camera permission
+        if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this.getActivity(),
+                    new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION_CAMERA);
+        } else {
+            // Permission already granted
+            dispatchTakePictureIntent();
+        }
+
         return view;
     }
     public void selectImageListener() {
@@ -113,8 +128,9 @@ public class CreateEventFragment extends Fragment {
                         });
 
         image.setOnClickListener(l -> {
-                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    activityResultLauncher.launch(intent); //open the android view that allows users to select image
+                    dispatchTakePictureIntent();
+//                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//                    activityResultLauncher.launch(intent); //open the android view that allows users to select image
                 }
         );
     }
@@ -237,11 +253,17 @@ public class CreateEventFragment extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == getActivity().RESULT_OK) {
-            // The photoURI contains the URI of the image captured by the camera
-            // You can use this URI as needed, for example, display it in an ImageView
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION_CAMERA) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                dispatchTakePictureIntent();
+            } else {
+                // Permission denied
+                Helper.showToast(this.getContext(), "Camera permission is required", Toast.LENGTH_SHORT);
+            }
         }
     }
 }
