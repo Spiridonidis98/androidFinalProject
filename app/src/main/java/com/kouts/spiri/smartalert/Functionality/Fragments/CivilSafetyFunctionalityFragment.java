@@ -1,8 +1,16 @@
 package com.kouts.spiri.smartalert.Functionality.Fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
+import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
@@ -16,15 +24,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Database.FirebaseDB;
+import com.kouts.spiri.smartalert.Functionality.MapsActivity;
 import com.kouts.spiri.smartalert.Functionality.RecommendEventsWorker;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
@@ -145,6 +158,56 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
 
         TextView eventType = eventView.findViewById(R.id.event_type);
         TextView eventCount = eventView.findViewById(R.id.event_count);
+        ImageView expanView = eventView.findViewById(R.id.expandView);
+        LinearLayout eventListContainer = eventView.findViewById(R.id.event_scroll_layout);
+
+        //here we set the expand view functionality
+        expanView.setOnClickListener(v -> {
+            if(eventListContainer.getVisibility() == View.GONE) {
+                eventListContainer.setVisibility(View.VISIBLE);
+                eventListContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        eventListContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                        int targetHeight = eventListContainer.getMeasuredHeight();
+
+                        ValueAnimator anim = ValueAnimator.ofInt(0, targetHeight);
+                        anim.setDuration(300);
+                        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                            @Override
+                            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                                int value = (int) valueAnimator.getAnimatedValue();
+                                eventListContainer.getLayoutParams().height = value;
+                                eventListContainer.requestLayout();
+                            }
+                        });
+                        anim.start();
+                    }
+                });
+
+            }
+            else {
+                ValueAnimator anim = ValueAnimator.ofInt(eventListContainer.getHeight(), 0);
+                anim.setDuration(300);
+                anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                        int value = (int) valueAnimator.getAnimatedValue();
+                        eventListContainer.getLayoutParams().height = value;
+                        eventListContainer.requestLayout();
+                    }
+                });
+                anim.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        eventListContainer.setVisibility(View.GONE);
+                    }
+                });
+                anim.start();
+            }
+        });
+
 
         eventType.setText(listOfEvents.get(0).getAlertType() + " at " + listOfEvents.get(0).getTimestamp());
 
@@ -160,6 +223,11 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         eventCount.setText(listOfEvents.size() + "");
         GradientDrawable border = (GradientDrawable) eventView.getBackground();
         border.setStroke(8, getColorForEvent(listOfEvents.get(0).getAlertType()));
+
+        for(Event event: listOfEvents) {
+            addEventToScrollView(event, eventView);
+        }
+
         reportContainer.addView(eventView);
     }
 
@@ -191,5 +259,88 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
             default:
                 return R.color.white;
         }
+    }
+
+    //here we create the list for each group to show to the expand view
+    public void addEventToScrollView(Event event, View eventView) {
+
+        LinearLayout civilreportContainer = eventView.findViewById(R.id.civilreportContainer);
+        View v = LayoutInflater.from(view.getContext()).inflate(R.layout.event, civilreportContainer, false);
+
+        v.setOnClickListener( v2 -> showEventInfo(event));
+        TextView eventType = v.findViewById(R.id.event_type);
+        TextView eventComment = v.findViewById(R.id.event_comment);
+        ImageView mapIcon = v.findViewById(R.id.map_icon);
+
+        eventType.setText(event.getAlertType() + " at " + event.getTimestamp());
+        eventComment.setText(event.getComment());
+
+        GradientDrawable border = (GradientDrawable) eventView.getBackground();
+        border.setStroke(5, getColorForEvent(event.getAlertType()));
+        getEventImage(event, mapIcon);
+        civilreportContainer.addView(v);
+
+    }
+    private void getEventImage(Event event, ImageView imageView) {
+
+        FirebaseDB.getImageFromStorage(event.getImage(), new FirebaseDB.FirebaseStorageListener() {
+            @Override
+            public void onImageRetrieved(Uri image) {
+                event.setImageURI(image);
+                Glide.with(CivilSafetyFunctionalityFragment.this)
+                        .load(image)
+                        .error(R.drawable.home)
+                        .into(imageView);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.d("test", e.toString());
+            }
+        });
+    }
+
+    private void showEventInfo(Event event) {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.event_info);
+
+        //initialize eventInfo view
+        ImageView closeIcon = dialog.findViewById(R.id.closeEventIcon);
+        ImageView imageView = dialog.findViewById(R.id.eventImage);
+        ImageView mapIcon = dialog.findViewById(R.id.eventInfoLocationIcon);
+
+        TextView eventType = dialog.findViewById(R.id.eventInfoType);
+        TextView eventTime = dialog.findViewById(R.id.eventInfoTime);
+        TextView eventComment = dialog.findViewById(R.id.eventInfoComment);
+
+        closeIcon.setOnClickListener(v -> dialog.dismiss());
+
+        eventType.setText(event.getAlertType() + "");
+        eventTime.setText(event.getTimestamp());
+        eventComment.setText(event.getComment());
+
+        Glide.with(CivilSafetyFunctionalityFragment.this)
+                .load(event.getImageURI())
+                .error(R.drawable.home)
+                .into(imageView);
+
+        mapIcon.setOnClickListener(v -> {
+            Location location = new Location(LocationManager.GPS_PROVIDER);
+            location.setLatitude(event.getLatitude());
+            location.setLongitude(event.getLongitude());
+
+            Intent intent = new Intent(getContext(), MapsActivity.class);
+            // Create Intent using LocationUtils method
+            intent.putExtra("Location", location);
+            intent.putExtra("EventType", event.getAlertType());
+            intent.putExtra("EventTime", event.getTimestamp());
+
+            startActivity(intent);
+
+        });
+
+        dialog.show();
+
+
     }
 }

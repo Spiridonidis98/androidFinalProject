@@ -36,7 +36,7 @@ public class RecommendEventsWorker extends Worker {
     final double RADIUS_KM = 20;
     final long ACCEPTABLE_TIME_DIFF = 2 *60*60*1000; //2 hours forwards AND backwards, for a total of 4 hours
     final int CLUSTER_NUM = 5; //there need to be at least 'CLUSTER_NUM' events that refer to the same disaster reported to recommend an alert
-    final int LAST_X_DAYS = 8; // is used to get all events in the last X days
+    final int LAST_X_DAYS = 12; // is used to get all events in the last X days
     final int TOTAL_THREADS = 4; // number of threads to be used, 1 for each event type.
 
     public RecommendEventsWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {

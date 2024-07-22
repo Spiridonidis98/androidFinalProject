@@ -3,16 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_marginBottom="10dp"
     android:background="@drawable/left_side_color"
     android:padding="8dp">
 
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="horizontal">
 
         <TextView
@@ -37,6 +36,58 @@
             android:layout_height="wrap_content"
             android:background="@drawable/circle"
             tools:ignore="RtlCompat" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+        <Button
+        android:layout_gravity="center"
+        android:id="@+id/confirm_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Confirm"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/primarycolor"></Button>
+        <Button
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Discard"
+            android:textColor="@color/primarycolor"
+            android:backgroundTint="@color/white"></Button>
+        <ImageView
+            android:id="@+id/expandView"
+            android:gravity="end"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:backgroundTint="@color/primarycolor"
+            android:background="@drawable/dropdown"></ImageView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/event_scroll_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <ScrollView
+            android:id="@+id/civil_list_event_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/civilreportContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 
 </LinearLayout>
