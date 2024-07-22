@@ -52,86 +52,93 @@ public class MainActivity extends AppCompatActivity {
 
         startLocationService(this);
 
-        Helper.validateCurrentUser(this);
-        if (Helper.user == null) {
-            getUserInfo(this.getCurrentFocus());
-
-        }
-
-        //for bottom navigation
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
-
-        if(Helper.user.getType() == 0) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, civilSafetyFunctionalityFragment).commit();
-            bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_civil);
-            bottomNavigationView.setSelectedItemId(R.id.civilSafetyFunctionality);
-        }
-        else {
-            getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
-
-            bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-            bottomNavigationView.setSelectedItemId(R.id.createEventFragment);
-
-        }
-
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+        // Get user info and update UI after retrieval
+        getUserInfo(new UserInfoCallback() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+            public void onUserInfoRetrieved(User user) {
+                setupBottomNavigation(user);
+            }
 
-                if(menuItem.getItemId() ==  R.id.eventStatisticsFragment) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
-                }
-                else if(menuItem.getItemId() == R.id.createEventFragment) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
-                }
-                else if(menuItem.getItemId() == R.id.personInfo) {
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    UserView userView = UserView.newInstance();
-                    userView.show(fragmentManager, "user_view");
-                }
-                else if (menuItem.getItemId() == R.id.civilSafetyFunctionality) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, civilSafetyFunctionalityFragment).commit();
-                }
-                return true;
+            @Override
+            public void onError(Exception e) {
+                Log.d("USER INFO ERROR", "Failed to retrieve user info", e);
+                // Handle the error, maybe show a default UI or message
             }
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private void setupBottomNavigation(User user) {
+        if (user != null) {
+            Helper.setUser(user);
+
+            // Initialize bottom navigation
+            bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+            if (user.getType() == 0) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, civilSafetyFunctionalityFragment).commit();
+                bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_civil);
+                bottomNavigationView.setSelectedItemId(R.id.civilSafetyFunctionality);
+            } else {
+                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
+                bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
+                bottomNavigationView.setSelectedItemId(R.id.createEventFragment);
+            }
+
+            bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    if(menuItem.getItemId() ==  R.id.eventStatisticsFragment) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
+                    }
+                    else if(menuItem.getItemId() == R.id.createEventFragment) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
+                    }
+                    else if(menuItem.getItemId() == R.id.personInfo) {
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        UserView userView = UserView.newInstance();
+                        userView.show(fragmentManager, "user_view");
+                    }
+                    else if (menuItem.getItemId() == R.id.civilSafetyFunctionality) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, civilSafetyFunctionalityFragment).commit();
+                    }
+                    return true;
+                }
+            });
+        } else {
+            Log.d("USER INFO ERROR", "User is null, cannot setup bottom navigation");
+        }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    public void getUserInfo(View view) {
+    public void getUserInfo(UserInfoCallback callback) {
         FirebaseDB.getUserInfo(FirebaseDB.getAuth().getUid(), new FirebaseDB.FirebaseUserListener() {
             @Override
             public void onUserRetrieved(User user) {
                 if (user != null) {
-                    Helper.user = user;
-                }
-                else {
-                    Log.d("USER NOT FOUND ERROR", "User not found in the database");
+                    callback.onUserInfoRetrieved(user);
+                } else {
+                    callback.onError(new Exception("User not found"));
                 }
             }
 
             @Override
             public void onUserAdded() {
-
+                // Handle user added if necessary
             }
 
             @Override
             public void onError(Exception e) {
-
+                callback.onError(e);
             }
         });
     }
 
-    //here we request Location Permissions
+    // Define a callback interface for user info retrieval
+    public interface UserInfoCallback {
+        void onUserInfoRetrieved(User user);
+        void onError(Exception e);
+    }
+
+    // Handle location permissions and start service
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -145,12 +152,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startLocationService(Context context) {
-        if(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_CODE); //actually asks the user for the permission
-
-            //Permission not granted
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_CODE); // Request location permission
             return;
         }
 

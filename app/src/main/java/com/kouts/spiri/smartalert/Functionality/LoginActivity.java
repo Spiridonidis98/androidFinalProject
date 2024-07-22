@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        Helper.user = null;
+        Helper.clearUser();
 
         ValidateUser(this);
 
@@ -144,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onUserRetrieved(User user) {
                     if (user != null) {
-                        Helper.user = user;
+                       Helper.setUser(user);
                         Intent intent = new Intent(c, MainActivity.class);
                         startActivity(intent);
                     }

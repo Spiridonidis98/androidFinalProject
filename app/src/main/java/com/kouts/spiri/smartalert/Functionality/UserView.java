@@ -32,7 +32,7 @@ public class UserView extends DialogFragment {
         TextView titleTextView = view.findViewById(R.id.email);
         TextView nameLastname = view.findViewById(R.id.nameLastname);
 
-        nameLastname.setText(Helper.user.getName() + " " + Helper.user.getLastname());
+        nameLastname.setText(Helper.getUser().getName() + " " + Helper.getUser().getLastname());
         Button logoutButton = view.findViewById(R.id.logout);
 
         titleTextView.setText(FirebaseDB.getAuth().getCurrentUser().getEmail());
@@ -40,7 +40,7 @@ public class UserView extends DialogFragment {
             @Override
             public void onClick(View v) {
                 FirebaseDB.getAuth().signOut();
-                Helper.user = null;
+                Helper.clearUser();
                 Intent intent = new Intent(v.getContext(), LoginActivity.class);
                 startActivity(intent);
                 // Handle button click

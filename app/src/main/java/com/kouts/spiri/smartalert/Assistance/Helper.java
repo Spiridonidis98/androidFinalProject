@@ -27,7 +27,22 @@ import java.util.Locale;
 
 
 public abstract class Helper {
-    public static User user;
+    private static User user;
+
+    // Static method to set the user
+    public static void setUser(User newUser) {
+        user = newUser;
+    }
+
+    // Static method to get the current user
+    public static User getUser() {
+        return user;
+    }
+
+    // Static method to clear the user
+    public static void clearUser() {
+        user = null;
+    }
     public static void showMessage(Context context, String title, String message){
         new AlertDialog.Builder(context).setTitle(title).setMessage(message).setCancelable(true).show();
     }

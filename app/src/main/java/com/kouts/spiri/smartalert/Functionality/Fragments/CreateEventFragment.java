@@ -5,6 +5,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.kouts.spiri.smartalert.Assistance.Helper.timestampToDate;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 ;
 import android.net.Uri;
@@ -12,8 +13,11 @@ import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,15 +40,19 @@ import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class CreateEventFragment extends Fragment {
     private View view;
-
+    static final int REQUEST_IMAGE_CAPTURE = 2;
+    private Uri photoURI;
     private static final int READ_IMAGES_CODE = 1;
-    private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int REQUEST_PERMISSION = 200;
     Button addEventButton;
     Spinner spinner;
@@ -197,5 +205,43 @@ public class CreateEventFragment extends Fragment {
 
     //Functionality to take pictures from the camera
     //here we check for permissions
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                photoURI = FileProvider.getUriForFile(requireContext(),
+                        requireContext().getPackageName() + ".fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
 
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == getActivity().RESULT_OK) {
+            // The photoURI contains the URI of the image captured by the camera
+            // You can use this URI as needed, for example, display it in an ImageView
+        }
+    }
 }
