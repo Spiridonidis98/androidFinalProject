@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -39,6 +40,7 @@ import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.MapsActivity;
 import com.kouts.spiri.smartalert.Functionality.RecommendEventsWorker;
+import com.kouts.spiri.smartalert.POJOs.Alert;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
@@ -160,6 +162,31 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         TextView eventCount = eventView.findViewById(R.id.event_count);
         ImageView expanView = eventView.findViewById(R.id.expandView);
         LinearLayout eventListContainer = eventView.findViewById(R.id.event_scroll_layout);
+
+        Button confirmButton = eventView.findViewById(R.id.confirm_button);
+
+        //here we confirm the creation of an alert
+        confirmButton.setOnClickListener(v -> {
+            int warning = 0;
+            if(listOfEvents.size() >= 5 && listOfEvents.size() < 10) {
+                warning = 1;
+            }
+            else if (listOfEvents.size() >= 10) {
+                warning = 2;
+            }
+            Alert newAlert = new Alert(listOfEvents.get(0).getAlertType() + " at " + listOfEvents.get(0).getTimestamp(), listOfEvents.get(0).getTimestamp(), warning, listOfEvents.get(0).getAlertType());
+            FirebaseDB.addAlert(newAlert, new FirebaseDB.FirebaseAlertListener() {
+                @Override
+                public void alertAdded() {
+                    Helper.showToast(getContext(), "Alert Created", Toast.LENGTH_LONG);
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+        });
 
         //here we set the expand view functionality
         expanView.setOnClickListener(v -> {

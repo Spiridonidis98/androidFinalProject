@@ -15,6 +15,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.POJOs.Alert;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.User;
@@ -32,6 +33,7 @@ public class FirebaseDB {
     private static final DatabaseReference user;
     private static final DatabaseReference image;
     private static final StorageReference storageRef;
+    private static final DatabaseReference alert;
 
     static {
         auth = FirebaseAuth.getInstance();
@@ -40,6 +42,7 @@ public class FirebaseDB {
         user = database.getReference("user");
         image = database.getReference("images");
         storageRef = FirebaseStorage.getInstance().getReference();
+        alert = database.getReference("alert");
     }
 
     public static FirebaseAuth getAuth() { return auth;}
@@ -174,6 +177,27 @@ public class FirebaseDB {
 
     public interface FirebaseStorageListener {
         void onImageRetrieved(Uri image);
+        void onError(Exception e);
+    }
+
+    //here we have the implementation for the alerts
+    public static void addAlert(Alert newAlert, final FirebaseAlertListener listener) {
+        if(auth.getCurrentUser() != null) {
+            DatabaseReference newAlertRef = alert.push();
+            newAlertRef.setValue(newAlert)
+                    .addOnSuccessListener( aVoid -> {
+                        //Successfully added user
+                        listener.alertAdded();
+                    })
+                    .addOnFailureListener(e -> {
+                        listener.onError(e);
+                    });
+
+        }
+    }
+
+    public interface FirebaseAlertListener {
+        void alertAdded();
         void onError(Exception e);
     }
 }
