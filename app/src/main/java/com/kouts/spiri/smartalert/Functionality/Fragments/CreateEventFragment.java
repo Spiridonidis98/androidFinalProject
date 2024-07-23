@@ -45,6 +45,7 @@ import com.kouts.spiri.smartalert.Functionality.MainActivity;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
+import com.kouts.spiri.smartalert.Services.LocationService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -66,11 +67,8 @@ public class CreateEventFragment extends Fragment {
     String selectedSpinnerItem;
     EditText comment;
     ImageView fileImage, cameraImage, showImage;
-
-    double currentLongitude, currentLatitude;
     long timestamp;
     Uri selectedImage;
-    private Location location;
     public CreateEventFragment() {
         // Required empty public constructor
     }
@@ -191,7 +189,11 @@ public class CreateEventFragment extends Fragment {
             Helper.showMessage(view.getContext(), "Error", message);
             return;
         }
-        if (this.location == null) {
+        double currentLatitude = LocationService.getLocationLatitude();
+        double currentLongitude = LocationService.getLocationLongitude();
+        long timestamp = LocationService.getLocationTime();
+
+        if (currentLatitude==0 || currentLongitude == 0 || timestamp==0) {
             String message = getString(R.string.location_not_found_please_try_again);
             Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
             return;
@@ -204,11 +206,11 @@ public class CreateEventFragment extends Fragment {
 
         Event event = null;
         if (selectedImage == null) { //do not include image to Event
-            event = new Event(FirebaseDB.getAuth().getUid(), selectedEventType, currentLongitude, currentLatitude, timestampToDate(timestamp), comment.getText().toString(), "");
+            event = new Event(FirebaseDB.getAuth().getUid(), selectedEventType, currentLatitude, currentLongitude, timestampToDate(timestamp), comment.getText().toString(), "");
         } else { //include selected image to Event
             String imageUUID = UUID.randomUUID().toString();
             String userUID = FirebaseDB.getAuth().getUid();
-            event = new Event(userUID, selectedEventType, this.location.getLongitude(), this.location.getLatitude(), timestampToDate(this.location.getTime()), comment.getText().toString(), imageUUID);
+            event = new Event(userUID, selectedEventType, currentLatitude ,currentLongitude, timestampToDate(timestamp), comment.getText().toString(), imageUUID);
             uploadImageToFirebase(selectedImage, imageUUID, userUID);
         }
         FirebaseDB.addEvent(event, new FirebaseDB.FirebaseEventListener() {

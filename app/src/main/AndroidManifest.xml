@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -9,6 +10,8 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -29,6 +32,10 @@
         tools:targetApi="31">
 
         <service android:name=".Services.LocationService" />
+        <service android:name=".Services.AlertNotificationService" />
+
+        <receiver android:name=".Functionality.AlertReceiver" />
+
 
         <!--
              TODO: Before you run your application, you need a Google Maps API key.

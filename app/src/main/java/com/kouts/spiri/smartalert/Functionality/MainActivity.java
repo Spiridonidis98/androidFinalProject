@@ -4,13 +4,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -34,6 +31,7 @@ import com.kouts.spiri.smartalert.Services.LocationService;
 
 public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_CODE = 0;
+    private static final int ALERT_CODE = 1;
     BottomNavigationView bottomNavigationView;
     EventStatisticsFragment eventStatisticsFragment = new EventStatisticsFragment();
     CreateEventFragment createEventFragment = new CreateEventFragment();
@@ -50,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        startLocationService(this);
+        startNecessaryServices(this);
 
         // Get user info and update UI after retrieval
         getUserInfo(new UserInfoCallback() {
@@ -142,25 +140,42 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_CODE) {
+        if (requestCode == LOCATION_CODE ) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startLocationService(this);
+                startNecessaryServices(this);
+            } else {
+                // Permission denied, handle accordingly
+            }
+        }
+        if (requestCode == ALERT_CODE ) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startNecessaryServices(this);
             } else {
                 // Permission denied, handle accordingly
             }
         }
     }
 
-    public void startLocationService(Context context) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    public void startNecessaryServices(Context context) {
+        boolean scheduleExactAlarmPerm = false;
 
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_CODE); // Request location permission
-            return;
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.SCHEDULE_EXACT_ALARM) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Log.d("MainActivity", "startNecessaryServices: alertService request permissions");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SCHEDULE_EXACT_ALARM}, ALERT_CODE);
+            } else {
+                Log.d("MainActivity", "startNecessaryServices: old version, could not start alert notification service");
+            }
+        } else {
+            scheduleExactAlarmPerm = true;
         }
 
-        Intent serviceIntent = new Intent(this, LocationService.class);
-        startService(serviceIntent);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) { //if permission not already granted
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_CODE); // Request location permission
+        } else {
+            Intent locationService = new Intent(this, LocationService.class);
+            locationService.putExtra("permission_granted",scheduleExactAlarmPerm);
+            startService(locationService);
+        }
     }
-
 }

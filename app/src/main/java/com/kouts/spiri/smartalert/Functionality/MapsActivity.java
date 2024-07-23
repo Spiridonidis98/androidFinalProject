@@ -52,8 +52,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String eventType = intent.getStringExtra("EventType");
         String eventTime = intent.getStringExtra("EventTime");
 
-        LatLng marker = new LatLng(location.getLatitude(), location.getLatitude());
+        LatLng marker = new LatLng(location.getLatitude(), location.getLongitude());
+
         mMap.addMarker(new MarkerOptions().position(marker).title(eventType + " " + eventTime));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(marker));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker,12f));
     }
 }

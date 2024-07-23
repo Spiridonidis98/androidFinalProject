@@ -14,14 +14,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.POJOs.Alert;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.User;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +52,9 @@ public class FirebaseDB {
 
     public static DatabaseReference getUserReference() {
         return user;
+    }
+    public static DatabaseReference getAlertReference() {
+        return alert;
     }
 
     public static void addUser(User newUser, final FirebaseUserListener listener) {

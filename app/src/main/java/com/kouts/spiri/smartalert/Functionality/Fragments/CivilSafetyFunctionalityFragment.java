@@ -58,6 +58,7 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
     private LinearLayout reportContainer;
     private View view;
     private RecyclerView recyclerView;
+    private final float ALERT_RADIUS = 10; //kilometers
     public CivilSafetyFunctionalityFragment() {
         // Required empty public constructor
     }
@@ -211,6 +212,7 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
 
         recyclerView.setVisibility(View.GONE);
         Button confirmButton = eventView.findViewById(R.id.confirm_button);
+        Event alertEvent = listOfEvents.get(0);
 
         //here we confirm the creation of an alert
         confirmButton.setOnClickListener(v -> {
@@ -221,7 +223,7 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
             else if (listOfEvents.size() >= 10) {
                 warning = 2;
             }
-            Alert newAlert = new Alert(listOfEvents.get(0).getAlertType() + " at " + listOfEvents.get(0).getTimestamp(), listOfEvents.get(0).getTimestamp(), warning, listOfEvents.get(0).getAlertType());
+            Alert newAlert = new Alert(alertEvent.getAlertType() + " at " + alertEvent.getTimestamp(), Helper.timestampToDate(System.currentTimeMillis()), warning, alertEvent.getAlertType(), alertEvent.getLatitude(), alertEvent.getLongitude(), ALERT_RADIUS);
             FirebaseDB.addAlert(newAlert, new FirebaseDB.FirebaseAlertListener() {
                 @Override
                 public void alertAdded() {
@@ -247,7 +249,7 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         });
 
 
-        eventType.setText(listOfEvents.get(0).getAlertType() + " at " + listOfEvents.get(0).getTimestamp());
+        eventType.setText(alertEvent.getAlertType() + " at " + alertEvent.getTimestamp());
 
 
         // Get the background drawable
@@ -255,12 +257,12 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         if (drawable != null) {
             // Change the color dynamically
             drawable.setColor(ContextCompat.getColor(eventView.getContext(), getColorForEventId(listOfEvents.get(0).getAlertType()))); // replace R.color.new_color with your desired color resource
-            drawable.setStroke(8, getColorForEvent(listOfEvents.get(0).getAlertType()));
+            drawable.setStroke(8, getColorForEvent(alertEvent.getAlertType()));
             eventCount.setBackground(drawable);
         }
         eventCount.setText(listOfEvents.size() + "");
         GradientDrawable border = (GradientDrawable) eventView.getBackground();
-        border.setStroke(8, getColorForEvent(listOfEvents.get(0).getAlertType()));
+        border.setStroke(8, getColorForEvent(alertEvent.getAlertType()));
 
 
         Adapter adapter = new Adapter(getContext(), listOfEvents);
