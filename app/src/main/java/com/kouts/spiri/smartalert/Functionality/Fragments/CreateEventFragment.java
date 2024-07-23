@@ -7,6 +7,7 @@ import static com.kouts.spiri.smartalert.Assistance.Helper.timestampToDate;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 ;
 import android.net.Uri;
@@ -37,6 +38,7 @@ import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
+
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.MainActivity;
@@ -45,6 +47,7 @@ import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -54,16 +57,16 @@ import java.util.UUID;
 
 public class CreateEventFragment extends Fragment {
     private View view;
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int REQUEST_PERMISSION_CAMERA = 2;
-    private Uri photoURI;
+
+    private static final int CAMERA_PERMISSION_CODE = 101;
     private static final int READ_IMAGES_CODE = 1;
     private static final int REQUEST_PERMISSION = 200;
     Button addEventButton;
     Spinner spinner;
     String selectedSpinnerItem;
     EditText comment;
-    ImageView image;
+    ImageView fileImage, cameraImage, showImage;
+
     double currentLongitude, currentLatitude;
     long timestamp;
     Uri selectedImage;
@@ -97,25 +100,54 @@ public class CreateEventFragment extends Fragment {
         addEventButton.setOnClickListener(v -> createEvent(v));
 
         comment = view.findViewById(R.id.editTextComments);
-        image = view.findViewById(R.id.imageViewEventImage);
+        fileImage = view.findViewById(R.id.openFile);
+        cameraImage = view.findViewById(R.id.openCamera);
+        showImage = view.findViewById(R.id.imageShower);
         spinner = view.findViewById(R.id.spinnerEventTypes);
 
-        image.setImageResource(R.drawable.camera);
+        fileImage.setImageResource(R.drawable.file);
+        cameraImage.setImageResource(R.drawable.camera);
+
+
+        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        } else {
+            openCamera();
+        };
 
         selectImageListener();
         selectEventTypeListener();
 
-        // Check for camera permission
-        if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this.getActivity(),
-                    new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION_CAMERA);
-        } else {
-            // Permission already granted
-            dispatchTakePictureIntent();
-        }
-
         return view;
+    }
+
+    public void openCamera() {
+        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Bundle extras = result.getData().getExtras();
+                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        selectedImage = saveBitmapToFile(imageBitmap);
+                        showImage.setImageBitmap(imageBitmap); // Shows the captured image in the ImageView
+                        showImage.setVisibility(View.VISIBLE);
+                    }
+                });
+        cameraImage.setOnClickListener(l -> {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            activityResultLauncher.launch(cameraIntent);
+        });
+    }
+
+    private Uri saveBitmapToFile(Bitmap bitmap) {
+        File cacheDir = requireContext().getCacheDir();
+        File imageFile = new File(cacheDir, "captured_image.jpg");
+        try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Uri.fromFile(imageFile);
     }
     public void selectImageListener() {
         ActivityResultLauncher<Intent> activityResultLauncher =
@@ -123,14 +155,14 @@ public class CreateEventFragment extends Fragment {
                         result -> {
                             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                                 selectedImage = result.getData().getData(); //get selected image
-                                image.setImageURI(selectedImage); //shows the selected image in the ImageView
+                                showImage.setImageURI(selectedImage); //shows the selected image in the ImageView
+                                showImage.setVisibility(View.VISIBLE);
                             }
                         });
 
-        image.setOnClickListener(l -> {
-                    dispatchTakePictureIntent();
-//                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//                    activityResultLauncher.launch(intent); //open the android view that allows users to select image
+        fileImage.setOnClickListener(l -> {
+                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    activityResultLauncher.launch(intent); //open the android view that allows users to select image
                 }
         );
     }
@@ -219,51 +251,4 @@ public class CreateEventFragment extends Fragment {
                 });
     }
 
-    //Functionality to take pictures from the camera
-    //here we check for permissions
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(requireContext(),
-                        requireContext().getPackageName() + ".fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            }
-        }
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSION_CAMERA) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-                dispatchTakePictureIntent();
-            } else {
-                // Permission denied
-                Helper.showToast(this.getContext(), "Camera permission is required", Toast.LENGTH_SHORT);
-            }
-        }
-    }
 }
