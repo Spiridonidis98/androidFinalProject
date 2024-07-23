@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -82,25 +83,31 @@
             android:text="@string/search_events" />
 
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="true">
-
             <LinearLayout
-                android:id="@+id/reportContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:gravity="center"
                 android:orientation="vertical">
-
                 <TextView
                     android:id="@+id/searchResults"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 </TextView>
-                <!-- Dynamic report content will be added here -->
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/reportContainer"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_weight="1">
+
+
+                    <!-- Dynamic report content will be added here -->
+                </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
-        </ScrollView>
     </LinearLayout>
 
 </FrameLayout>

@@ -15,6 +15,8 @@ import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -36,6 +38,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.kouts.spiri.smartalert.Assistance.Adapter;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.MapsActivity;
@@ -54,6 +57,7 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
     private Button getRecommendedEvents;
     private LinearLayout reportContainer;
     private View view;
+    private RecyclerView recyclerView;
     public CivilSafetyFunctionalityFragment() {
         // Required empty public constructor
     }
@@ -155,14 +159,57 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                 });
     }
 
+    private void expandRecyclerView(RecyclerView recyclerView) {
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                int targetHeight = recyclerView.getMeasuredHeight();
+
+                ValueAnimator anim = ValueAnimator.ofInt(0, targetHeight);
+                anim.setDuration(300);
+                anim.addUpdateListener(valueAnimator -> {
+                    int value = (int) valueAnimator.getAnimatedValue();
+                    recyclerView.getLayoutParams().height = value;
+                    recyclerView.requestLayout();
+                });
+                anim.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        recyclerView.setVisibility(View.VISIBLE);
+                    }
+                });
+                anim.start();
+            }
+        });
+    }
+
+    private void collapseRecyclerView(RecyclerView recyclerView) {
+        ValueAnimator anim = ValueAnimator.ofInt(recyclerView.getHeight(), 0);
+        anim.setDuration(300);
+        anim.addUpdateListener(valueAnimator -> {
+            int value = (int) valueAnimator.getAnimatedValue();
+            recyclerView.getLayoutParams().height = value;
+            recyclerView.requestLayout();
+        });
+        anim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                recyclerView.setVisibility(View.GONE);
+            }
+        });
+        anim.start();
+    }
+
     public void addEventToLayout(ArrayList<Event> listOfEvents) {
         View eventView = LayoutInflater.from(view.getContext()).inflate(R.layout.civil_list, reportContainer, false);
 
         TextView eventType = eventView.findViewById(R.id.event_type);
         TextView eventCount = eventView.findViewById(R.id.event_count);
         ImageView expanView = eventView.findViewById(R.id.expandView);
-        LinearLayout eventListContainer = eventView.findViewById(R.id.event_scroll_layout);
+        RecyclerView recyclerView = eventView.findViewById(R.id.civil_list_event_scroll);
 
+        recyclerView.setVisibility(View.GONE);
         Button confirmButton = eventView.findViewById(R.id.confirm_button);
 
         //here we confirm the creation of an alert
@@ -189,49 +236,13 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         });
 
         //here we set the expand view functionality
+        // Expand view functionality
         expanView.setOnClickListener(v -> {
-            if(eventListContainer.getVisibility() == View.GONE) {
-                eventListContainer.setVisibility(View.VISIBLE);
-                eventListContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        eventListContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                        int targetHeight = eventListContainer.getMeasuredHeight();
-
-                        ValueAnimator anim = ValueAnimator.ofInt(0, targetHeight);
-                        anim.setDuration(300);
-                        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                            @Override
-                            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                                int value = (int) valueAnimator.getAnimatedValue();
-                                eventListContainer.getLayoutParams().height = value;
-                                eventListContainer.requestLayout();
-                            }
-                        });
-                        anim.start();
-                    }
-                });
-
-            }
-            else {
-                ValueAnimator anim = ValueAnimator.ofInt(eventListContainer.getHeight(), 0);
-                anim.setDuration(300);
-                anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        int value = (int) valueAnimator.getAnimatedValue();
-                        eventListContainer.getLayoutParams().height = value;
-                        eventListContainer.requestLayout();
-                    }
-                });
-                anim.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        eventListContainer.setVisibility(View.GONE);
-                    }
-                });
-                anim.start();
+            if (recyclerView.getVisibility() == View.GONE) {
+                recyclerView.setVisibility(View.VISIBLE);
+                expandRecyclerView(recyclerView);
+            } else {
+                collapseRecyclerView(recyclerView);
             }
         });
 
@@ -251,9 +262,12 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         GradientDrawable border = (GradientDrawable) eventView.getBackground();
         border.setStroke(8, getColorForEvent(listOfEvents.get(0).getAlertType()));
 
-        for(Event event: listOfEvents) {
-            addEventToScrollView(event, eventView);
-        }
+
+        Adapter adapter = new Adapter(getContext(), listOfEvents);
+        int spanCount = calculateSpanCount();
+        GridLayoutManager layout = new GridLayoutManager(getContext(), spanCount);
+        recyclerView.setLayoutManager(layout);
+        recyclerView.setAdapter(adapter);
 
         reportContainer.addView(eventView);
     }
@@ -288,86 +302,9 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         }
     }
 
-    //here we create the list for each group to show to the expand view
-    public void addEventToScrollView(Event event, View eventView) {
-
-        LinearLayout civilreportContainer = eventView.findViewById(R.id.civilreportContainer);
-        View v = LayoutInflater.from(view.getContext()).inflate(R.layout.event, civilreportContainer, false);
-
-        v.setOnClickListener( v2 -> showEventInfo(event));
-        TextView eventType = v.findViewById(R.id.event_type);
-        TextView eventComment = v.findViewById(R.id.event_comment);
-        ImageView mapIcon = v.findViewById(R.id.map_icon);
-
-        eventType.setText(event.getAlertType() + " at " + event.getTimestamp());
-        eventComment.setText(event.getComment());
-
-        GradientDrawable border = (GradientDrawable) eventView.getBackground();
-        border.setStroke(5, getColorForEvent(event.getAlertType()));
-        getEventImage(event, mapIcon);
-        civilreportContainer.addView(v);
-
-    }
-    private void getEventImage(Event event, ImageView imageView) {
-
-        FirebaseDB.getImageFromStorage(event.getImage(), new FirebaseDB.FirebaseStorageListener() {
-            @Override
-            public void onImageRetrieved(Uri image) {
-                event.setImageURI(image);
-                Glide.with(CivilSafetyFunctionalityFragment.this)
-                        .load(image)
-                        .error(R.drawable.home)
-                        .into(imageView);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.d("test", e.toString());
-            }
-        });
-    }
-
-    private void showEventInfo(Event event) {
-        Dialog dialog = new Dialog(requireContext());
-        dialog.setContentView(R.layout.event_info);
-
-        //initialize eventInfo view
-        ImageView closeIcon = dialog.findViewById(R.id.closeEventIcon);
-        ImageView imageView = dialog.findViewById(R.id.eventImage);
-        ImageView mapIcon = dialog.findViewById(R.id.eventInfoLocationIcon);
-
-        TextView eventType = dialog.findViewById(R.id.eventInfoType);
-        TextView eventTime = dialog.findViewById(R.id.eventInfoTime);
-        TextView eventComment = dialog.findViewById(R.id.eventInfoComment);
-
-        closeIcon.setOnClickListener(v -> dialog.dismiss());
-
-        eventType.setText(event.getAlertType() + "");
-        eventTime.setText(event.getTimestamp());
-        eventComment.setText(event.getComment());
-
-        Glide.with(CivilSafetyFunctionalityFragment.this)
-                .load(event.getImageURI())
-                .error(R.drawable.home)
-                .into(imageView);
-
-        mapIcon.setOnClickListener(v -> {
-            Location location = new Location(LocationManager.GPS_PROVIDER);
-            location.setLatitude(event.getLatitude());
-            location.setLongitude(event.getLongitude());
-
-            Intent intent = new Intent(getContext(), MapsActivity.class);
-            // Create Intent using LocationUtils method
-            intent.putExtra("Location", location);
-            intent.putExtra("EventType", event.getAlertType());
-            intent.putExtra("EventTime", event.getTimestamp());
-
-            startActivity(intent);
-
-        });
-
-        dialog.show();
-
-
+    private int calculateSpanCount() {
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int itemWidth = 600; // Adjust this value according to your item dimensions
+        return screenWidth / itemWidth;
     }
 }

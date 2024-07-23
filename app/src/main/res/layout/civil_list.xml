@@ -70,24 +70,11 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/event_scroll_layout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/civil_list_event_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-        <ScrollView
-            android:id="@+id/civil_list_event_scroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <LinearLayout
-                android:id="@+id/civilreportContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+        android:layout_height="wrap_content">
 
-            </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
+    </androidx.recyclerview.widget.RecyclerView>
 
 </LinearLayout>

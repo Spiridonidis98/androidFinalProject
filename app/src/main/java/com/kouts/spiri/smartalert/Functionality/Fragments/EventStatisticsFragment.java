@@ -13,6 +13,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,11 +22,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.kouts.spiri.smartalert.Assistance.Adapter;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.MapsActivity;
@@ -38,8 +42,10 @@ import java.util.List;
 public class EventStatisticsFragment extends Fragment {
     private Button buttonDatePickerStart, buttonDatePickerEnd, searchButton;
     private CheckBox fireCheckbox, earthquakeCheckbox, tornadoCheckbox, floodCheckbox;
-    private LinearLayout reportContainer;
     private View view;
+
+    private RecyclerView recyclerView;
+
 
     public EventStatisticsFragment() {
         // Required empty public constructor
@@ -59,7 +65,6 @@ public class EventStatisticsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_event_statistics, container, false);
 
-        reportContainer = view.findViewById(R.id.reportContainer);
         searchButton = view.findViewById(R.id.getEvents);
 
         fireCheckbox = view.findViewById(R.id.fireCheckbox);
@@ -82,6 +87,8 @@ public class EventStatisticsFragment extends Fragment {
         buttonDatePickerEnd.setOnClickListener(v -> showDatePickerDialog(buttonDatePickerEnd));
 
         searchButton.setOnClickListener(this::getEvents);
+
+        recyclerView = view.findViewById(R.id.reportContainer);
 
         return view;
     }
@@ -106,9 +113,13 @@ public class EventStatisticsFragment extends Fragment {
 
     }
 
+    private int calculateSpanCount() {
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int itemWidth = 600; // Adjust this value according to your item dimensions
+        return screenWidth / itemWidth;
+    }
+
     public void getEvents(View v) {
-        Log.e("TEST", "RUNNING");
-        reportContainer.removeAllViewsInLayout();
         String startDate = Helper.convertDateFormat(buttonDatePickerStart.getText().toString()) + " 00:00:00";
         String endDate = Helper.convertDateFormat(buttonDatePickerEnd.getText().toString()) + " 23:59:59";
         FirebaseDB.getEvents(startDate, endDate, fireCheckbox.isChecked(), floodCheckbox.isChecked(), earthquakeCheckbox.isChecked(), tornadoCheckbox.isChecked(), new FirebaseDB.FirebaseEventListener() {
@@ -120,9 +131,11 @@ public class EventStatisticsFragment extends Fragment {
                     return;
                 }
                 fixSearchResultText(events);
-                for (Event e : events) {
-                    addEventToLayout(e);
-                }
+                Adapter adapter = new Adapter(getContext(), events);
+                int spanCount = calculateSpanCount();
+                GridLayoutManager layout = new GridLayoutManager(getContext(), spanCount);
+                recyclerView.setLayoutManager(layout);
+                recyclerView.setAdapter(adapter);
             }
 
             @Override
@@ -174,105 +187,8 @@ public class EventStatisticsFragment extends Fragment {
         }
 
         searchResults.setText(results.toString());
-        reportContainer.addView(searchResults);
     }
 
-    public void addEventToLayout(Event event) {
 
 
-        View eventView = LayoutInflater.from(view.getContext()).inflate(R.layout.event, reportContainer, false);
-
-        eventView.setOnClickListener( v -> showEventInfo(event));
-        TextView eventType = eventView.findViewById(R.id.event_type);
-        TextView eventComment = eventView.findViewById(R.id.event_comment);
-        ImageView mapIcon = eventView.findViewById(R.id.map_icon);
-
-        eventType.setText(event.getAlertType() + " at " + event.getTimestamp());
-        eventComment.setText(event.getComment());
-
-        GradientDrawable border = (GradientDrawable) eventView.getBackground();
-        border.setStroke(5, getColorForEvent(event.getAlertType()));
-        getEventImage(event, mapIcon);
-        reportContainer.addView(eventView);
-
-    }
-
-    private int getColorForEvent(EventTypes type) {
-        switch (type) {
-            case FIRE:
-                return Color.parseColor("#AA4203");
-            case FLOOD:
-                return Color.parseColor("#0000FF");
-            case TORNADO:
-                return Color.parseColor("#808080");
-            case EARTHQUAKE:
-                return Color.parseColor("#8B4513");
-            default:
-                return Color.parseColor("#FFFFFF");
-        }
-    }
-
-    //getting event image
-    private void getEventImage(Event event, ImageView imageView) {
-
-        FirebaseDB.getImageFromStorage(event.getImage(), new FirebaseDB.FirebaseStorageListener() {
-            @Override
-            public void onImageRetrieved(Uri image) {
-                event.setImageURI(image);
-                Glide.with(EventStatisticsFragment.this)
-                        .load(image)
-                        .error(R.drawable.home)
-                        .into(imageView);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.d("test", e.toString());
-            }
-        });
-    }
-
-    private void showEventInfo(Event event) {
-        Dialog dialog = new Dialog(requireContext());
-        dialog.setContentView(R.layout.event_info);
-
-        //initialize eventInfo view
-        ImageView closeIcon = dialog.findViewById(R.id.closeEventIcon);
-        ImageView imageView = dialog.findViewById(R.id.eventImage);
-        ImageView mapIcon = dialog.findViewById(R.id.eventInfoLocationIcon);
-
-        TextView eventType = dialog.findViewById(R.id.eventInfoType);
-        TextView eventTime = dialog.findViewById(R.id.eventInfoTime);
-        TextView eventComment = dialog.findViewById(R.id.eventInfoComment);
-
-        closeIcon.setOnClickListener(v -> dialog.dismiss());
-
-        eventType.setText(event.getAlertType() + "");
-        eventTime.setText(event.getTimestamp());
-        eventComment.setText(event.getComment());
-
-        Glide.with(EventStatisticsFragment.this)
-                .load(event.getImageURI())
-                .error(R.drawable.home)
-                .into(imageView);
-
-        mapIcon.setOnClickListener(v -> {
-            Location location = new Location(LocationManager.GPS_PROVIDER);
-            location.setLatitude(event.getLatitude());
-            location.setLongitude(event.getLongitude());
-
-            Intent intent = new Intent(getContext(), MapsActivity.class);
-            // Create Intent using LocationUtils method
-            intent.putExtra("Location", location);
-            intent.putExtra("EventType", event.getAlertType());
-            intent.putExtra("EventTime", event.getTimestamp());
-
-            startActivity(intent);
-
-        });
-
-        dialog.show();
-
-
-    }
 }
