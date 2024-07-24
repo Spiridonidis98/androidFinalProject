@@ -1,9 +1,15 @@
 package com.kouts.spiri.smartalert.Assistance;
 
+import static androidx.core.content.ContextCompat.getContextForLanguage;
 import static androidx.core.content.ContextCompat.startActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
+import android.os.LocaleList;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -27,6 +33,9 @@ import java.util.Locale;
 
 
 public abstract class Helper {
+    private static final String PREFERENCE_NAME = "app_language";
+    private static final String LANGUAGE_KEY = "language_key";
+    private static String language = "en";
     private static User user;
 
     // Static method to set the user
@@ -163,5 +172,36 @@ public abstract class Helper {
                         Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return EARTH_RADIUS * c;
+    }
+
+    public static void setLanguage(String lang) {
+        language = lang;
+    }
+
+    public static String getLanguage() {
+        return language;
+    }
+
+    public static void setLocale(Context context, String lang) {
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+        android.content.res.Resources resources = context.getResources();
+        android.content.res.Configuration config = new android.content.res.Configuration(resources.getConfiguration());
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
+
+        saveLanguagePreference(context, lang);
+    }
+
+    public static String getSavedLanguage(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
+        return preferences.getString(LANGUAGE_KEY, "en"); // Default to English if no preference is found
+    }
+
+    private static void saveLanguagePreference(Context context, String lang) {
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(LANGUAGE_KEY, lang);
+        editor.apply();
     }
 }

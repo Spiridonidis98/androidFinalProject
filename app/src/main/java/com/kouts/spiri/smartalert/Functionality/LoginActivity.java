@@ -2,11 +2,15 @@ package com.kouts.spiri.smartalert.Functionality;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.LocaleList;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -28,8 +32,12 @@ import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
 
+import java.util.Locale;
+
 public class LoginActivity extends AppCompatActivity {
     EditText loginEmail, loginPassword, registerEmail, registerPassword;
+    ImageView languageImg;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +87,34 @@ public class LoginActivity extends AppCompatActivity {
                 registerCard.setVisibility(View.GONE);
             }
         });
+        // Set the saved locale before setting the content view
+        String savedLanguage = Helper.getSavedLanguage(this);
+        Helper.setLocale(this, savedLanguage);
+        languageImg = findViewById(R.id.languageImg);
+
+        if(savedLanguage.equals("en")) {
+            languageImg.setImageResource(R.drawable.en);
+        }
+        else {
+            languageImg.setImageResource(R.drawable.el);
+        }
+
+        //change language implementation
+        languageImg.setOnClickListener(v -> {
+            String currentLanguage = Helper.getSavedLanguage(LoginActivity.this);
+            System.out.println(currentLanguage);
+            if (currentLanguage.equals("en")) {
+                Helper.setLocale(LoginActivity.this, "el");
+            } else {
+                Helper.setLocale(LoginActivity.this, "en");
+            }
+            // Restart activity to apply language change
+            recreate();
+        });
+
     }
+
+
 
     //Register User
     public void registerUser(View view) {

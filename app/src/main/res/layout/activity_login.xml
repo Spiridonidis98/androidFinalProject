@@ -24,11 +24,11 @@
         android:id="@+id/viewFlipper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/loginView"
@@ -74,9 +74,9 @@
                 android:layout_width="167dp"
                 android:layout_height="43dp"
                 android:layout_marginTop="25dp"
+                android:backgroundTint="@color/primarycolor"
                 android:onClick="loginUser"
                 android:text="@string/login"
-                android:backgroundTint="@color/primarycolor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/loginPassword" />
@@ -105,6 +105,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.017"
                 app:layout_constraintStart_toStartOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -151,9 +152,9 @@
                 android:layout_width="167dp"
                 android:layout_height="43dp"
                 android:layout_marginTop="25dp"
+                android:backgroundTint="@color/primarycolor"
                 android:onClick="registerUser"
                 android:text="@string/register"
-                android:backgroundTint="@color/primarycolor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.522"
                 app:layout_constraintStart_toStartOf="parent"
@@ -175,8 +176,8 @@
                 android:id="@+id/goToLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/already_have_an_account_login"
                 android:background="@android:color/transparent"
+                android:text="@string/already_have_an_account_login"
                 android:textColor="@android:color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -184,6 +185,17 @@
                 app:layout_constraintStart_toStartOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ViewFlipper>
+
+    <ImageView
+        android:id="@+id/languageImg"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="44dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewFlipper"
+        app:layout_constraintVertical_bias="0.083"
+        app:srcCompat="@drawable/en" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

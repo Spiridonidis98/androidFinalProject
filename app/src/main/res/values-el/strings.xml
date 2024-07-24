@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="spinnerEventTypes">
+        <item>Πυρκαγιά</item>
+        <item>Πλυμμήρα</item>
+        <item>Σεισμός</item>
+        <item>Ανεμοστρόβυλος</item>
+    </string-array>
     <string name="app_name">SmartAlert</string>
     <string name="submit_event">Καταχώρησε περιστατικό</string>
     <string name="comments">Σχόλια</string>
@@ -40,4 +46,15 @@
     <string name="user_not_found_in_the_database">Ο χρήστης δεν βρέθηκε στη βάση δεδομένων</string>
     <string name="required_data_is_missing">Απουσία απαραίτητων δεδομένων</string>
     <string name="unknown_error_occurred_user_could_not_be_submitted">Προέκυψε σφάλμα. Ο χρήστης δεν μπόρεσε να καταχωρηθεί</string>
+    <string-array name="navigation">
+        <item>Γεγονότα</item>
+        <item>Δημιουργία</item>
+        <item>Ρυθμίσεις</item>
+    </string-array>
+    <string-array name="navigation_civil">
+        <item>Γεγονότα</item>
+        <item>Πολιτική</item>
+        <item>Ρυθμίσεις</item>
+    </string-array>
+
 </resources>

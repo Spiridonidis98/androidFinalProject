@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -30,6 +31,8 @@ import com.kouts.spiri.smartalert.R;
 import com.kouts.spiri.smartalert.Services.LocationService;
 
 public class MainActivity extends AppCompatActivity {
+
+    ImageView languageImg;
     private static final int LOCATION_CODE = 0;
     private static final int ALERT_CODE = 1;
     BottomNavigationView bottomNavigationView;
@@ -49,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         startNecessaryServices(this);
+
+        settingLanguage();
 
         // Get user info and update UI after retrieval
         getUserInfo(new UserInfoCallback() {
@@ -76,10 +81,22 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, civilSafetyFunctionalityFragment).commit();
                 bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_civil);
                 bottomNavigationView.setSelectedItemId(R.id.civilSafetyFunctionality);
+                // Retrieve the string array
+                String[] menuLabels = getResources().getStringArray(R.array.navigation);
+                // Set the titles of the menu items
+                bottomNavigationView.getMenu().findItem(R.id.eventStatisticsFragment).setTitle(menuLabels[0]);
+                bottomNavigationView.getMenu().findItem(R.id.civilSafetyFunctionality).setTitle(menuLabels[1]);
+                bottomNavigationView.getMenu().findItem(R.id.personInfo).setTitle(menuLabels[2]);
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
                 bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
                 bottomNavigationView.setSelectedItemId(R.id.createEventFragment);
+                // Retrieve the string array
+                String[] menuLabels = getResources().getStringArray(R.array.navigation);
+                // Set the titles of the menu items
+                bottomNavigationView.getMenu().findItem(R.id.eventStatisticsFragment).setTitle(menuLabels[0]);
+                bottomNavigationView.getMenu().findItem(R.id.createEventFragment).setTitle(menuLabels[1]);
+                bottomNavigationView.getMenu().findItem(R.id.personInfo).setTitle(menuLabels[2]);
             }
 
             bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -105,6 +122,33 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d("USER INFO ERROR", "User is null, cannot setup bottom navigation");
         }
+    }
+
+    private void settingLanguage() {
+        // Set the saved locale before setting the content view
+        String savedLanguage = Helper.getSavedLanguage(this);
+        Helper.setLocale(this, savedLanguage);
+        languageImg = findViewById(R.id.languageImg);
+
+        if(savedLanguage.equals("en")) {
+            languageImg.setImageResource(R.drawable.en);
+        }
+        else {
+            languageImg.setImageResource(R.drawable.el);
+        }
+
+        //change language implementation
+        languageImg.setOnClickListener(v -> {
+            String currentLanguage = Helper.getSavedLanguage(MainActivity.this);
+            System.out.println(currentLanguage);
+            if (currentLanguage.equals("en")) {
+                Helper.setLocale(MainActivity.this, "el");
+            } else {
+                Helper.setLocale(MainActivity.this, "en");
+            }
+            // Restart activity to apply language change
+            recreate();
+        });
     }
 
     public void getUserInfo(UserInfoCallback callback) {
