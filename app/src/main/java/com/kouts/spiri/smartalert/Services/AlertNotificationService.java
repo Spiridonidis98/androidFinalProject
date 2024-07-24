@@ -17,14 +17,18 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.AlertReceiver;
 import com.kouts.spiri.smartalert.Functionality.MapsActivity;
 import com.kouts.spiri.smartalert.POJOs.Alert;
+import com.kouts.spiri.smartalert.POJOs.UserAlerts;
 import com.kouts.spiri.smartalert.R;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class AlertNotificationService extends Service {
@@ -96,8 +100,40 @@ public class AlertNotificationService extends Service {
 
                     //send notifications for alerts near the user
                     if (distance <= alert.getRadius()) {
-                        sendNotification(alert);
+                        examineUserAlert(alert);
                     }
+                }
+            }
+        });
+    }
+
+    private void examineUserAlert(Alert alert) {
+        FirebaseUser user = FirebaseDB.getAuth().getCurrentUser();
+        String userId = null;
+        if (user != null) {
+            userId = user.getUid();
+        } else {
+            Log.d("AlertNotificationService", "examineUserAlert: user is null");
+            return;
+        }
+        FirebaseDB.getUserAlertRef().orderByChild("uid").equalTo(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (DataSnapshot userAlertSnapshot : task.getResult().getChildren()) { //get UserAlerts
+                        for (DataSnapshot alertSnapshot : userAlertSnapshot.child("alerts").getChildren()) { //get Alerts
+                            String existingAlertId = alertSnapshot.child("aId").getValue(String.class);
+                            if (alert.getaId().equals(existingAlertId)) { //if alert already exists don't send notification or add it again
+                                return;
+                            }
+                        }
+                    }
+
+                    //alert does not exist inside UserAlert user's alert list so send notification and add it
+                    sendNotification(alert);
+                    saveUserAlert(alert);
+                } else {
+                    Log.d("AlertNotificationService", "examineUserAlert: task not successful ");
                 }
             }
         });
@@ -130,6 +166,57 @@ public class AlertNotificationService extends Service {
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(new Random().nextInt(), builder.build()); //send the notification with a random id
+    }
+    private void saveUserAlert(Alert alert) {
+
+        FirebaseUser user = FirebaseDB.getAuth().getCurrentUser();
+        if (user != null) {
+            FirebaseDB.getUserAlertRef().orderByChild("uid").equalTo(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (!task.isSuccessful()) {
+                        Log.d("AlertNotificationService", "getUserAlertRef task unsuccessful");
+                        return;
+                    }
+                    DataSnapshot dataSnapshot = task.getResult();
+                    UserAlerts userAlert = null;
+
+                    if (dataSnapshot.hasChildren()) { //if there is a UserAlert entry with this user's id already
+                        for (DataSnapshot data : dataSnapshot.getChildren()) { //we assume there is only one DataSnapshot
+                            userAlert = data.getValue(UserAlerts.class);
+                            if (userAlert != null) {
+                                userAlert.getAlerts().add(alert); //add the new alert to the list with the existing ones
+                            }
+                        }
+                    }
+                    else { //if there is no such entry in the db, create new UserAlert
+                        ArrayList<Alert> alertList = new ArrayList<>();
+                        alertList.add(alert);
+                        userAlert = new UserAlerts(user.getUid(), alertList);
+                    }
+
+                    Log.d("AlertNotificationService", "before add user alert ");
+
+                    if (userAlert == null) {
+                        Log.d("AlertNotificationService", "userAlert is null");
+                        return;
+                    }
+                    FirebaseDB.addUserAlert(userAlert, new FirebaseDB.FirebaseUserAlertListener() { // push/update the userAlert entry
+                        @Override
+                        public void onUserAlertRetrieved(List<UserAlerts> userAlerts) {
+                        }
+
+                        @Override
+                        public void onUserAlertAdded() {
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                        }
+                    });
+                }
+            });
+        }
     }
 
     private void scheduleNextCheck() {

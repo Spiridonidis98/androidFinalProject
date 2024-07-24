@@ -5,6 +5,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -18,9 +20,12 @@ import com.kouts.spiri.smartalert.POJOs.Alert;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.User;
+import com.kouts.spiri.smartalert.POJOs.UserAlerts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FirebaseDB {
 
@@ -31,6 +36,7 @@ public class FirebaseDB {
     private static final DatabaseReference image;
     private static final StorageReference storageRef;
     private static final DatabaseReference alert;
+    private static final DatabaseReference userAlert;
 
     static {
         auth = FirebaseAuth.getInstance();
@@ -40,6 +46,7 @@ public class FirebaseDB {
         image = database.getReference("images");
         storageRef = FirebaseStorage.getInstance().getReference();
         alert = database.getReference("alert");
+        userAlert = database.getReference("userAlerts");
     }
 
     public static FirebaseAuth getAuth() { return auth;}
@@ -56,6 +63,7 @@ public class FirebaseDB {
     public static DatabaseReference getAlertReference() {
         return alert;
     }
+    public static DatabaseReference getUserAlertRef() { return userAlert; }
 
     public static void addUser(User newUser, final FirebaseUserListener listener) {
         if(auth.getCurrentUser() != null) {
@@ -84,6 +92,38 @@ public class FirebaseDB {
                         listener.onError(e);
                     });
 
+        }
+    }
+
+    public static void addUserAlert(UserAlerts userAlerts, final FirebaseUserAlertListener listener) {
+        DatabaseReference newUserAlertRef = userAlert;
+
+        if (userAlerts.getAlerts().size() > 1) { //if the list has more than one alert instead of creating new entry update the old one
+            newUserAlertRef.orderByChild("uid").equalTo(userAlerts.getUid()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (!task.isSuccessful()) {
+                        return;
+                    }
+
+                    DataSnapshot dataSnapshot = task.getResult();
+                    for (DataSnapshot data: dataSnapshot.getChildren()) {
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("alerts", userAlerts.getAlerts());
+                        data.getRef().updateChildren(updates); //update the alerts of the existing entry
+                    }
+                }
+            });
+        }
+        else { //push new entry
+            newUserAlertRef.push().setValue(userAlerts)
+                    .addOnSuccessListener(aVoid -> {
+                        //Successfully added user
+                        listener.onUserAlertAdded();
+                    })
+                    .addOnFailureListener(e -> {
+                        listener.onError(e);
+                    });
         }
     }
 
@@ -160,6 +200,12 @@ public class FirebaseDB {
     public interface FirebaseEventListener {
         void onEventsRetrieved(List<Event> events);
         void onEventAdded();
+        void onError(Exception e);
+    }
+
+    public interface FirebaseUserAlertListener {
+        void onUserAlertRetrieved(List<UserAlerts> userAlerts);
+        void onUserAlertAdded();
         void onError(Exception e);
     }
 
