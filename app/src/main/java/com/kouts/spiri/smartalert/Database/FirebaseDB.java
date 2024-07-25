@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.POJOs.Alert;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
@@ -246,4 +247,43 @@ public class FirebaseDB {
         void alertAdded();
         void onError(Exception e);
     }
+
+    //here we implement fetch the user alerts
+    public static void getUserAlerts(String startDate, String endDate, Boolean isFireChecked, Boolean isFloodChecked, Boolean isEarthquakeChecked, Boolean isTornadoChecked, final FirebaseUserAlertGetterListener listener) {
+
+        Log.e("START", startDate);
+        Log.e("End", endDate);
+
+        Query query = userAlert.orderByChild("uid").equalTo(Helper.getUser().getUid());
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserAlerts userAlertsFound = null;
+                if (!snapshot.exists()) {
+                    listener.onUserAlertsRetrieved(null);
+                    return;
+                }
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    UserAlerts temp = snap.getValue(UserAlerts.class);
+
+                    if(temp != null ){
+                       userAlertsFound = temp;
+                    }
+                }
+
+                listener.onUserAlertsRetrieved(userAlertsFound);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    public interface FirebaseUserAlertGetterListener {
+        void onUserAlertsRetrieved(UserAlerts userAlerts);
+        void onError(Exception e);
+    }
+
 }

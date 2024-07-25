@@ -50,6 +50,7 @@
     <string name="required_data_is_missing">Required data is missing</string>
     <string name="unknown_error_occurred_user_could_not_be_submitted">Unknown error occurred. User could not be submitted</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="no_notifications_found_for_the_given_criteria"></string>
     <string-array name="navigation">
         <item>Events</item>
         <item>Create Event</item>

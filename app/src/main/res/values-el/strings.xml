@@ -46,13 +46,15 @@
     <string name="user_not_found_in_the_database">Ο χρήστης δεν βρέθηκε στη βάση δεδομένων</string>
     <string name="required_data_is_missing">Απουσία απαραίτητων δεδομένων</string>
     <string name="unknown_error_occurred_user_could_not_be_submitted">Προέκυψε σφάλμα. Ο χρήστης δεν μπόρεσε να καταχωρηθεί</string>
+    <string name="no_notifications_found_for_the_given_criteria">Δεν βρέθηκαν ειδοποιήσεις για τα δοθέντα κριτήρια.</string>
+
     <string-array name="navigation">
-        <item>Γεγονότα</item>
+        <item>Ειδοποιήσεις</item>
         <item>Δημιουργία</item>
         <item>Ρυθμίσεις</item>
     </string-array>
     <string-array name="navigation_civil">
-        <item>Γεγονότα</item>
+        <item>Ειδοποιήσεις</item>
         <item>Πολιτική</item>
         <item>Ρυθμίσεις</item>
     </string-array>

@@ -1,58 +1,44 @@
 package com.kouts.spiri.smartalert.Functionality.Fragments;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.GridLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.kouts.spiri.smartalert.Assistance.Adapter;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Assistance.NotificationAdapter;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
-import com.kouts.spiri.smartalert.Functionality.MapsActivity;
-import com.kouts.spiri.smartalert.POJOs.Event;
-import com.kouts.spiri.smartalert.POJOs.EventTypes;
+import com.kouts.spiri.smartalert.POJOs.Alert;
+import com.kouts.spiri.smartalert.POJOs.UserAlerts;
 import com.kouts.spiri.smartalert.R;
 
 import java.util.Calendar;
 import java.util.List;
 
-public class EventStatisticsFragment extends Fragment {
+public class NotificationListFragment extends Fragment {
     private Button buttonDatePickerStart, buttonDatePickerEnd, searchButton;
     private CheckBox fireCheckbox, earthquakeCheckbox, tornadoCheckbox, floodCheckbox;
     private View view;
 
     private RecyclerView recyclerView;
-
-
-    public EventStatisticsFragment() {
+    public NotificationListFragment() {
         // Required empty public constructor
     }
 
-    public static EventStatisticsFragment newInstance() {
-        return new EventStatisticsFragment();
+    public static NotificationListFragment newInstance(String param1, String param2) {
+        NotificationListFragment fragment = new NotificationListFragment();
+        Bundle args = new Bundle();
+        return fragment;
     }
 
     @Override
@@ -60,13 +46,21 @@ public class EventStatisticsFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_event_statistics, container, false);
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        view =  inflater.inflate(R.layout.fragment_notification_list, container, false);
+        initializeCheckboxes();
+        initializeDatepickers();
         searchButton = view.findViewById(R.id.getEvents);
+        searchButton.setOnClickListener(this::getNotifications);
 
+        recyclerView = view.findViewById(R.id.reportContainer);
+        return view;
+    }
+
+    //initialize checkboxes
+    private void initializeCheckboxes() {
         fireCheckbox = view.findViewById(R.id.fireCheckbox);
         floodCheckbox = view.findViewById(R.id.floodCheckbox);
         earthquakeCheckbox = view.findViewById(R.id.earthquakeCheckbox);
@@ -76,7 +70,10 @@ public class EventStatisticsFragment extends Fragment {
         floodCheckbox.setChecked(true);
         earthquakeCheckbox.setChecked(true);
         tornadoCheckbox.setChecked(true);
+    }
 
+    //initialize dates
+    private void initializeDatepickers() {
         buttonDatePickerStart = view.findViewById(R.id.buttonDatePickerStart);
         buttonDatePickerEnd = view.findViewById(R.id.buttonDatePickerEnd);
 
@@ -85,14 +82,9 @@ public class EventStatisticsFragment extends Fragment {
 
         buttonDatePickerStart.setOnClickListener(v -> showDatePickerDialog(buttonDatePickerStart));
         buttonDatePickerEnd.setOnClickListener(v -> showDatePickerDialog(buttonDatePickerEnd));
-
-        searchButton.setOnClickListener(this::getEvents);
-
-        recyclerView = view.findViewById(R.id.reportContainer);
-
-        return view;
     }
 
+    //datepicker functionality
     private void showDatePickerDialog(Button button) {
         final Calendar c = Calendar.getInstance();
 
@@ -113,34 +105,41 @@ public class EventStatisticsFragment extends Fragment {
 
     }
 
-    public void getEvents(View v) {
+
+    //notificationList getter
+    public void getNotifications(View v) {
         String startDate = Helper.convertDateFormat(buttonDatePickerStart.getText().toString()) + " 00:00:00";
         String endDate = Helper.convertDateFormat(buttonDatePickerEnd.getText().toString()) + " 23:59:59";
-        FirebaseDB.getEvents(startDate, endDate, fireCheckbox.isChecked(), floodCheckbox.isChecked(), earthquakeCheckbox.isChecked(), tornadoCheckbox.isChecked(), new FirebaseDB.FirebaseEventListener() {
-            @Override
-            public void onEventsRetrieved(List<Event> events) {
-                if (events == null || events.isEmpty()) {
-                    String message = getString(R.string.no_events_found_for_the_given_criteria);
-                    Helper.showMessage(v.getContext(), "Warning", message);
-                    return;
-                }
-                fixSearchResultText(events);
-                Adapter adapter = new Adapter(getContext(), events);
-                int spanCount = Helper.calculateSpanCount(getResources());
-                GridLayoutManager layout = new GridLayoutManager(getContext(), spanCount);
-                recyclerView.setLayoutManager(layout);
-                recyclerView.setAdapter(adapter);
-            }
 
-            @Override
-            public void onEventAdded() {}
+        FirebaseDB.getUserAlerts(startDate, endDate, fireCheckbox.isChecked(), floodCheckbox.isChecked(), earthquakeCheckbox.isChecked(), tornadoCheckbox.isChecked(),
+                new FirebaseDB.FirebaseUserAlertGetterListener() {
+                    @Override
+                    public void onUserAlertsRetrieved(UserAlerts userAlerts) {
+                        if (userAlerts == null || userAlerts.getAlerts().isEmpty()) {
+                            String message = getString(R.string.no_notifications_found_for_the_given_criteria);
+                            Helper.showMessage(v.getContext(), "Warning", message);
+                            return;
+                        }
 
-            @Override
-            public void onError(Exception e) {}
-        });
+                        fixSearchResultText(userAlerts.getAlerts());
+
+                        NotificationAdapter adapter = new NotificationAdapter(getContext(), userAlerts.getAlerts());
+                        int spanCount = Helper.calculateSpanCount(getResources());
+                        GridLayoutManager layout = new GridLayoutManager(getContext(), spanCount);
+                        recyclerView.setLayoutManager(layout);
+                        recyclerView.setAdapter(adapter);
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        String message = getString(R.string.no_notifications_found_for_the_given_criteria);
+                        Helper.showMessage(v.getContext(), "Warning", message);
+                    }
+                });
     }
 
-    public void fixSearchResultText(List<Event> events) {
+    public void fixSearchResultText(List<Alert> alerts) {
         TextView searchResults = new TextView(view.getContext());
 
         int fireEventsCounter = 0;
@@ -148,8 +147,8 @@ public class EventStatisticsFragment extends Fragment {
         int earthquakeEventsCounter = 0;
         int tornadoEventsCounter = 0;
 
-        for (Event e : events) {
-            switch (e.getAlertType()) {
+        for (Alert e : alerts) {
+            switch (e.getEventType()) {
                 case FIRE:
                     fireEventsCounter++;
                     break;
@@ -182,7 +181,4 @@ public class EventStatisticsFragment extends Fragment {
 
         searchResults.setText(results.toString());
     }
-
-
-
 }

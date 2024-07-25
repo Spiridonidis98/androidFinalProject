@@ -46,13 +46,15 @@
     <string name="user_not_found_in_the_database">User not found in the database</string>
     <string name="required_data_is_missing">Required data is missing</string>
     <string name="unknown_error_occurred_user_could_not_be_submitted">Unknown error occurred. User could not be submitted</string>
+    <string name="no_notifications_found_for_the_given_criteria">No notifications found for the given criteria.</string>
+
     <string-array name="navigation">
-        <item>Events</item>
+        <item>Notifications</item>
         <item>Create event</item>
         <item>Settings</item>
     </string-array>
     <string-array name="navigation_civil">
-        <item>Events</item>
+        <item>Notifications</item>
         <item>Civil Functionality</item>
         <item>Settings</item>
     </string-array>

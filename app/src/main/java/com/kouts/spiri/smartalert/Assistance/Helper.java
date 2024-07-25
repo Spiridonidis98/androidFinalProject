@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.LocaleList;
 import android.widget.ArrayAdapter;
@@ -22,6 +23,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.LoginActivity;
+import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
 
@@ -203,5 +205,26 @@ public abstract class Helper {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(LANGUAGE_KEY, lang);
         editor.apply();
+    }
+
+    public static int getColorForEvent(EventTypes type) {
+        switch (type) {
+            case FIRE:
+                return Color.parseColor("#AA4203");
+            case FLOOD:
+                return Color.parseColor("#0000FF");
+            case TORNADO:
+                return Color.parseColor("#808080");
+            case EARTHQUAKE:
+                return Color.parseColor("#8B4513");
+            default:
+                return Color.parseColor("#FFFFFF");
+        }
+    }
+
+    public static int calculateSpanCount(Resources resources) {
+        int screenWidth = resources.getDisplayMetrics().widthPixels;
+        int itemWidth = 600; // Adjust this value according to your item dimensions
+        return screenWidth / itemWidth;
     }
 }

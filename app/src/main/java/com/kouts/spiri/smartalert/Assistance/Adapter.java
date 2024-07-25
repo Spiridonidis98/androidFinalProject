@@ -5,7 +5,6 @@ import static androidx.core.content.ContextCompat.startActivity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.location.LocationManager;
@@ -54,7 +53,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         holder.eventTimeStampTextView.setText(item.getTimestamp());
         // Set image resource or load image into holder.mapIconImageView here
         GradientDrawable border = (GradientDrawable) holder.itemView.getBackground();
-        border.setStroke(5, getColorForEvent(item.getAlertType()));
+        border.setStroke(5, Helper.getColorForEvent(item.getAlertType()));
         getEventImage(item, holder.mapIconImageView);
 
         holder.itemView.setOnClickListener(v -> showEventInfo(item));
@@ -82,20 +81,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         }
     }
 
-    private int getColorForEvent(EventTypes type) {
-        switch (type) {
-            case FIRE:
-                return Color.parseColor("#AA4203");
-            case FLOOD:
-                return Color.parseColor("#0000FF");
-            case TORNADO:
-                return Color.parseColor("#808080");
-            case EARTHQUAKE:
-                return Color.parseColor("#8B4513");
-            default:
-                return Color.parseColor("#FFFFFF");
-        }
-    }
+
 
     private void getEventImage(Event event, ImageView imageView) {
 

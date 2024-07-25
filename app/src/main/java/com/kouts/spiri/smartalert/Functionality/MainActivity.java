@@ -26,6 +26,7 @@ import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CivilSafetyFunctionalityFragment;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CreateEventFragment;
 import com.kouts.spiri.smartalert.Functionality.Fragments.EventStatisticsFragment;
+import com.kouts.spiri.smartalert.Functionality.Fragments.NotificationListFragment;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
 import com.kouts.spiri.smartalert.Services.LocationService;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int ALERT_CODE = 1;
     BottomNavigationView bottomNavigationView;
     EventStatisticsFragment eventStatisticsFragment = new EventStatisticsFragment();
+    NotificationListFragment notificationListFragment = new NotificationListFragment();
     CreateEventFragment createEventFragment = new CreateEventFragment();
     CivilSafetyFunctionalityFragment civilSafetyFunctionalityFragment = new CivilSafetyFunctionalityFragment();
 
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 // Retrieve the string array
                 String[] menuLabels = getResources().getStringArray(R.array.navigation);
                 // Set the titles of the menu items
-                bottomNavigationView.getMenu().findItem(R.id.eventStatisticsFragment).setTitle(menuLabels[0]);
+                bottomNavigationView.getMenu().findItem(R.id.notification_alert).setTitle(menuLabels[0]);
                 bottomNavigationView.getMenu().findItem(R.id.civilSafetyFunctionality).setTitle(menuLabels[1]);
                 bottomNavigationView.getMenu().findItem(R.id.personInfo).setTitle(menuLabels[2]);
             } else {
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 // Retrieve the string array
                 String[] menuLabels = getResources().getStringArray(R.array.navigation);
                 // Set the titles of the menu items
-                bottomNavigationView.getMenu().findItem(R.id.eventStatisticsFragment).setTitle(menuLabels[0]);
+                bottomNavigationView.getMenu().findItem(R.id.notification_alert).setTitle(menuLabels[0]);
                 bottomNavigationView.getMenu().findItem(R.id.createEventFragment).setTitle(menuLabels[1]);
                 bottomNavigationView.getMenu().findItem(R.id.personInfo).setTitle(menuLabels[2]);
             }
@@ -102,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
             bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    if(menuItem.getItemId() ==  R.id.eventStatisticsFragment) {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, eventStatisticsFragment).commit();
+                    if(menuItem.getItemId() ==  R.id.notification_alert) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, notificationListFragment).commit();
                     }
                     else if(menuItem.getItemId() == R.id.createEventFragment) {
                         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
