@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Functionality.Activities.MainActivity;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
 

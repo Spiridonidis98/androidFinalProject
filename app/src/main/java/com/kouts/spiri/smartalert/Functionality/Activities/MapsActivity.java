@@ -1,4 +1,4 @@
-package com.kouts.spiri.smartalert.Functionality;
+package com.kouts.spiri.smartalert.Functionality.Activities;
 
 import androidx.fragment.app.FragmentActivity;
 

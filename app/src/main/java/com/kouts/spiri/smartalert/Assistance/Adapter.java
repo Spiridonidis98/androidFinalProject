@@ -20,10 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
-import com.kouts.spiri.smartalert.Functionality.Fragments.EventStatisticsFragment;
-import com.kouts.spiri.smartalert.Functionality.MapsActivity;
+import com.kouts.spiri.smartalert.Functionality.Activities.MapsActivity;
 import com.kouts.spiri.smartalert.POJOs.Event;
-import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
 
 import java.util.List;

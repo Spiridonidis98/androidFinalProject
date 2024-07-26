@@ -1,11 +1,8 @@
-package com.kouts.spiri.smartalert.Functionality;
+package com.kouts.spiri.smartalert.Functionality.Activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.LocaleList;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -23,16 +20,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.database.DataSnapshot;
-import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Database.FirebaseDB;
+import com.kouts.spiri.smartalert.Functionality.UserExtraInfo;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
-
-import java.util.Locale;
 
 public class LoginActivity extends AppCompatActivity {
     EditText loginEmail, loginPassword, registerEmail, registerPassword;
@@ -114,11 +108,8 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-
-
     //Register User
     public void registerUser(View view) {
-    //    if(registerPassword.getText().length() == 0 || registerEmail.getText().length() == 0) return;  //I don't think that's needed
 
         try {
             FirebaseDB.getAuth().createUserWithEmailAndPassword(registerEmail.getText().toString(), registerPassword.getText().toString()).addOnCompleteListener(
@@ -144,33 +135,32 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    //Handle login
     public void loginUser(View view) {
-        if(loginPassword.getText().length() == 0 || loginEmail.getText().length() == 0) return;
+        if(loginPassword.getText().length() == 0 || loginEmail.getText().length() == 0) {
+            return;
+        }
+        FirebaseDB.getAuth().signInWithEmailAndPassword(loginEmail.getText().toString(), loginPassword.getText().toString()).addOnCompleteListener(
+                new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()) {
+                            String message = getString(R.string.user_logged_in_successfully);
+                            Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
+                            Intent intent = new Intent(view.getContext(), MainActivity.class);
+                            startActivity(intent);
 
-        try {
-            FirebaseDB.getAuth().signInWithEmailAndPassword(loginEmail.getText().toString(), loginPassword.getText().toString()).addOnCompleteListener(
-                    new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if(task.isSuccessful()) {
-                                String message = getString(R.string.user_logged_in_successfully);
-                                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
-                                Intent intent = new Intent(view.getContext(), MainActivity.class);
-                                startActivity(intent);
 
-
-                            }
-                            else {
-                                Helper.showMessage(view.getContext(), "Error",task.getException().getLocalizedMessage());
-                            }
+                        }
+                        else {
+                            Helper.showMessage(view.getContext(), "Error",task.getException().getLocalizedMessage());
                         }
                     }
-            );
-        }catch (Exception e) {
-            Log.d("rerwer",e.toString());
-
-        }
+                }
+        );
     }
+
+    //check if logged in user exists in database
     private void ValidateUser(Context c) {
         String userId = FirebaseDB.getAuth().getUid();
 
@@ -178,8 +168,8 @@ public class LoginActivity extends AppCompatActivity {
             FirebaseDB.getUserInfo(FirebaseDB.getAuth().getUid(), new FirebaseDB.FirebaseUserListener() {
                 @Override
                 public void onUserRetrieved(User user) {
-                    if (user != null) {
-                       Helper.setUser(user);
+                    if (user != null) { //if user exists, move to MainActivity
+                        Helper.setUser(user);
                         Intent intent = new Intent(c, MainActivity.class);
                         startActivity(intent);
                     }

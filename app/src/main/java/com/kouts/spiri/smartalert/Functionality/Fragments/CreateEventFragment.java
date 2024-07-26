@@ -8,21 +8,16 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Location;
 ;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,18 +36,16 @@ import com.google.firebase.storage.StorageReference;
 
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
-import com.kouts.spiri.smartalert.Functionality.MainActivity;
+import com.kouts.spiri.smartalert.Functionality.Activities.MainActivity;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
-import com.kouts.spiri.smartalert.Services.LocationService;
+import com.kouts.spiri.smartalert.Functionality.Background_Functions.LocationService;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.kouts.spiri.smartalert.Functionality;
+package com.kouts.spiri.smartalert.Functionality.Activities;
 
 import android.Manifest;
 import android.content.Context;
@@ -25,11 +25,11 @@ import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CivilSafetyFunctionalityFragment;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CreateEventFragment;
-import com.kouts.spiri.smartalert.Functionality.Fragments.EventStatisticsFragment;
 import com.kouts.spiri.smartalert.Functionality.Fragments.NotificationListFragment;
+import com.kouts.spiri.smartalert.Functionality.UserView;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
-import com.kouts.spiri.smartalert.Services.LocationService;
+import com.kouts.spiri.smartalert.Functionality.Background_Functions.LocationService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_CODE = 0;
     private static final int ALERT_CODE = 1;
     BottomNavigationView bottomNavigationView;
-    EventStatisticsFragment eventStatisticsFragment = new EventStatisticsFragment();
     NotificationListFragment notificationListFragment = new NotificationListFragment();
     CreateEventFragment createEventFragment = new CreateEventFragment();
     CivilSafetyFunctionalityFragment civilSafetyFunctionalityFragment = new CivilSafetyFunctionalityFragment();
@@ -186,14 +185,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_CODE ) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startNecessaryServices(this);
-            } else {
-                // Permission denied, handle accordingly
-            }
-        }
-        if (requestCode == ALERT_CODE ) {
+        if (requestCode == LOCATION_CODE || requestCode == ALERT_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startNecessaryServices(this);
             } else {

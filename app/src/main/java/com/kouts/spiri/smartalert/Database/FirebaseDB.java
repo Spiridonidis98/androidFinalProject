@@ -96,6 +96,7 @@ public class FirebaseDB {
         }
     }
 
+    //adds new UserAlert entry if there was no previous entry for that user, or updates the old entry to include new alerts
     public static void addUserAlert(UserAlerts userAlerts, final FirebaseUserAlertListener listener) {
         DatabaseReference newUserAlertRef = userAlert;
 
@@ -205,7 +206,6 @@ public class FirebaseDB {
     }
 
     public interface FirebaseUserAlertListener {
-        void onUserAlertRetrieved(List<UserAlerts> userAlerts);
         void onUserAlertAdded();
         void onError(Exception e);
     }
@@ -235,21 +235,16 @@ public class FirebaseDB {
                     .addOnSuccessListener( aVoid -> {
                         //Successfully added user
                         listener.alertAdded();
-                    })
-                    .addOnFailureListener(e -> {
-                        listener.onError(e);
                     });
-
         }
     }
 
     public interface FirebaseAlertListener {
         void alertAdded();
-        void onError(Exception e);
     }
 
-    //here we implement fetch the user alerts
-    public static void getUserAlerts(String startDate, String endDate, Boolean isFireChecked, Boolean isFloodChecked, Boolean isEarthquakeChecked, Boolean isTornadoChecked, final FirebaseUserAlertGetterListener listener) {
+    //here we fetch the user alerts
+    public static void getUserAlerts(String startDate, String endDate, final FirebaseUserAlertGetterListener listener) {
 
         Log.e("START", startDate);
         Log.e("End", endDate);
@@ -271,7 +266,6 @@ public class FirebaseDB {
                        userAlertsFound = temp;
                     }
                 }
-
                 listener.onUserAlertsRetrieved(userAlertsFound);
             }
 
@@ -283,7 +277,6 @@ public class FirebaseDB {
     }
     public interface FirebaseUserAlertGetterListener {
         void onUserAlertsRetrieved(UserAlerts userAlerts);
-        void onError(Exception e);
     }
 
 }

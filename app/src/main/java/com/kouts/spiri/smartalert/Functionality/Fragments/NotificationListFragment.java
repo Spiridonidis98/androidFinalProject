@@ -111,32 +111,26 @@ public class NotificationListFragment extends Fragment {
         String startDate = Helper.convertDateFormat(buttonDatePickerStart.getText().toString()) + " 00:00:00";
         String endDate = Helper.convertDateFormat(buttonDatePickerEnd.getText().toString()) + " 23:59:59";
 
-        FirebaseDB.getUserAlerts(startDate, endDate, fireCheckbox.isChecked(), floodCheckbox.isChecked(), earthquakeCheckbox.isChecked(), tornadoCheckbox.isChecked(),
-                new FirebaseDB.FirebaseUserAlertGetterListener() {
-                    @Override
-                    public void onUserAlertsRetrieved(UserAlerts userAlerts) {
-                        if (userAlerts == null || userAlerts.getAlerts().isEmpty()) {
-                            String message = getString(R.string.no_notifications_found_for_the_given_criteria);
-                            Helper.showMessage(v.getContext(), "Warning", message);
-                            return;
-                        }
+        FirebaseDB.getUserAlerts(startDate, endDate, new FirebaseDB.FirebaseUserAlertGetterListener() {
+            @Override
+            public void onUserAlertsRetrieved(UserAlerts userAlerts) {
+                if (userAlerts == null || userAlerts.getAlerts().isEmpty()) {
+                    String message = getString(R.string.no_notifications_found_for_the_given_criteria);
+                    Helper.showMessage(v.getContext(), "Warning", message);
+                    return;
+                }
 
-                        fixSearchResultText(userAlerts.getAlerts());
+                fixSearchResultText(userAlerts.getAlerts());
 
-                        NotificationAdapter adapter = new NotificationAdapter(getContext(), userAlerts.getAlerts());
-                        int spanCount = Helper.calculateSpanCount(getResources());
-                        GridLayoutManager layout = new GridLayoutManager(getContext(), spanCount);
-                        recyclerView.setLayoutManager(layout);
-                        recyclerView.setAdapter(adapter);
+                NotificationAdapter adapter = new NotificationAdapter(getContext(), userAlerts.getAlerts());
+                int spanCount = Helper.calculateSpanCount(getResources());
+                GridLayoutManager layout = new GridLayoutManager(getContext(), spanCount);
+                recyclerView.setLayoutManager(layout);
+                recyclerView.setAdapter(adapter);
 
-                    }
+            }
 
-                    @Override
-                    public void onError(Exception e) {
-                        String message = getString(R.string.no_notifications_found_for_the_given_criteria);
-                        Helper.showMessage(v.getContext(), "Warning", message);
-                    }
-                });
+        });
     }
 
     public void fixSearchResultText(List<Alert> alerts) {

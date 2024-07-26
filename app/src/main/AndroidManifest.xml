@@ -31,10 +31,10 @@
         android:theme="@style/Theme.SmartAlert"
         tools:targetApi="31">
 
-        <service android:name=".Services.LocationService" />
-        <service android:name=".Services.AlertNotificationService" />
+        <service android:name=".Functionality.Background_Functions.LocationService" />
+        <service android:name=".Functionality.Background_Functions.AlertNotificationService" />
 
-        <receiver android:name=".Functionality.AlertReceiver" />
+        <receiver android:name=".Functionality.Background_Functions.AlertReceiver" />
 
 
         <!--
@@ -53,11 +53,11 @@
             android:value="AIzaSyCsjE9FpIdfsbxYDvsKm8eTFr4aZm-skbc" />
 
         <activity
-            android:name=".Functionality.MapsActivity"
+            android:name=".Functionality.Activities.MapsActivity"
             android:exported="false"
             android:label="@string/title_activity_maps" />
         <activity
-            android:name=".Functionality.RecommendEventsManagerActivity"
+            android:name=".Functionality.Activities.RecommendEventsManagerActivity"
             android:exported="false">
 
             <!-- <intent-filter> -->
@@ -71,7 +71,7 @@
             android:name=".Functionality.UserExtraInfo"
             android:exported="false" />
         <activity
-            android:name=".Functionality.LoginActivity"
+            android:name=".Functionality.Activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -80,7 +80,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Functionality.MainActivity"
+            android:name=".Functionality.Activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

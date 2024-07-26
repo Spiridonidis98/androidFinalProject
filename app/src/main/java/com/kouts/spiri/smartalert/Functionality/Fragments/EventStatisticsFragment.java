@@ -1,13 +1,7 @@
 package com.kouts.spiri.smartalert.Functionality.Fragments;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,24 +10,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.GridLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.kouts.spiri.smartalert.Assistance.Adapter;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
-import com.kouts.spiri.smartalert.Functionality.MapsActivity;
 import com.kouts.spiri.smartalert.POJOs.Event;
-import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
 
 import java.util.Calendar;

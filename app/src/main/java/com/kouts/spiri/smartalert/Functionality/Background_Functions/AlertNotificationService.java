@@ -1,4 +1,4 @@
-package com.kouts.spiri.smartalert.Services;
+package com.kouts.spiri.smartalert.Functionality.Background_Functions;
 
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
@@ -21,14 +21,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
-import com.kouts.spiri.smartalert.Functionality.AlertReceiver;
-import com.kouts.spiri.smartalert.Functionality.MapsActivity;
+import com.kouts.spiri.smartalert.Functionality.Activities.MapsActivity;
 import com.kouts.spiri.smartalert.POJOs.Alert;
 import com.kouts.spiri.smartalert.POJOs.UserAlerts;
 import com.kouts.spiri.smartalert.R;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class AlertNotificationService extends Service {
@@ -57,8 +55,6 @@ public class AlertNotificationService extends Service {
     }
 
     private void createNotificationChannel() {
-        Log.d("AlarmNotificationService", "entered createNotificationChannel");
-
         String name = "Alerts";
         String description = "Get alerts for events near you";
 
@@ -72,7 +68,6 @@ public class AlertNotificationService extends Service {
     }
 
     private void checkAlerts() {
-        Log.d("AlarmNotificationService", "entered checkAlerts");
         long lastXMinutes = System.currentTimeMillis() - (TRIGGER_TIME * 60 * 1000);
 
         //get recent alerts
@@ -82,7 +77,7 @@ public class AlertNotificationService extends Service {
 
                 DataSnapshot dataSnapshot = task.getResult();
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    Alert alert = data.getValue(Alert.class);
+                    Alert alert = data.getValue(Alert.class); //get each alert found
 
                     if (alert == null) {
                         continue;
@@ -91,23 +86,24 @@ public class AlertNotificationService extends Service {
                     double locationLat = LocationService.getLocationLatitude();
                     double locationLong = LocationService.getLocationLongitude();
                     double distance;
-                    if (locationLat!=0 && locationLong!=0) { //location exists and it's not the default value
+                    if (locationLat!=0 && locationLong!=0) { //user location exists and it's not the default value
+                        //calculate distance between user location and alert location
                         distance = Helper.calculateGeoDistance(locationLat, locationLong, alert.getLatitude(), alert.getLongitude());
                     } else {
                         Log.d("AlarmNotificationService", "default location");
                         return;
                     }
 
-                    //send notifications for alerts near the user
+                    //send notification for alert near the user, if they haven't already been notified of that alert before
                     if (distance <= alert.getRadius()) {
-                        examineUserAlert(alert);
+                        notifyIfNewAlert(alert);
                     }
                 }
             }
         });
     }
 
-    private void examineUserAlert(Alert alert) {
+    private void notifyIfNewAlert(Alert alert) {
         FirebaseUser user = FirebaseDB.getAuth().getCurrentUser();
         String userId = null;
         if (user != null) {
@@ -116,6 +112,8 @@ public class AlertNotificationService extends Service {
             Log.d("AlertNotificationService", "examineUserAlert: user is null");
             return;
         }
+
+        //find UserAlert DB entry for the current user
         FirebaseDB.getUserAlertRef().orderByChild("uid").equalTo(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -123,7 +121,7 @@ public class AlertNotificationService extends Service {
                     for (DataSnapshot userAlertSnapshot : task.getResult().getChildren()) { //get UserAlerts
                         for (DataSnapshot alertSnapshot : userAlertSnapshot.child("alerts").getChildren()) { //get Alerts
                             String existingAlertId = alertSnapshot.child("aId").getValue(String.class);
-                            if (alert.getaId().equals(existingAlertId)) { //if alert already exists don't send notification or add it again
+                            if (alert.getaId().equals(existingAlertId)) { //if this alert has been already added before, don't send notification or add it again
                                 return;
                             }
                         }
@@ -140,7 +138,6 @@ public class AlertNotificationService extends Service {
     }
 
     private void sendNotification(Alert alert) {
-        Log.d("AlarmNotificationService", "entered sendNotification");
 
         //get user location
         Location alertLocation = new Location("");
@@ -167,6 +164,8 @@ public class AlertNotificationService extends Service {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(new Random().nextInt(), builder.build()); //send the notification with a random id
     }
+
+    //save or update the UserAlert entry of the current user in the DB
     private void saveUserAlert(Alert alert) {
 
         FirebaseUser user = FirebaseDB.getAuth().getCurrentUser();
@@ -202,10 +201,6 @@ public class AlertNotificationService extends Service {
                         return;
                     }
                     FirebaseDB.addUserAlert(userAlert, new FirebaseDB.FirebaseUserAlertListener() { // push/update the userAlert entry
-                        @Override
-                        public void onUserAlertRetrieved(List<UserAlerts> userAlerts) {
-                        }
-
                         @Override
                         public void onUserAlertAdded() {
                         }

@@ -3,14 +3,8 @@ package com.kouts.spiri.smartalert.Functionality.Fragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
@@ -31,18 +25,15 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.kouts.spiri.smartalert.Assistance.Adapter;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
-import com.kouts.spiri.smartalert.Functionality.MapsActivity;
-import com.kouts.spiri.smartalert.Functionality.RecommendEventsWorker;
+import com.kouts.spiri.smartalert.Functionality.Background_Functions.RecommendEventsWorker;
 import com.kouts.spiri.smartalert.POJOs.Alert;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
@@ -228,11 +219,6 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                 @Override
                 public void alertAdded() {
                     Helper.showToast(getContext(), "Alert Created", Toast.LENGTH_LONG);
-                }
-
-                @Override
-                public void onError(Exception e) {
-
                 }
             });
         });

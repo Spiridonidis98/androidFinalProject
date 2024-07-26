@@ -1,4 +1,4 @@
-package com.kouts.spiri.smartalert.Functionality;
+package com.kouts.spiri.smartalert.Functionality.Background_Functions;
 
 import android.content.Context;
 import android.util.Log;
@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
 
 public class RecommendEventsWorker extends Worker {
 
-    final double RADIUS_KM = 20;
+    final double RADIUS_KM = 10;
     final long ACCEPTABLE_TIME_DIFF = 2 *60*60*1000; //2 hours forwards AND backwards, for a total of 4 hours
     final int CLUSTER_NUM = 5; //there need to be at least 'CLUSTER_NUM' events that refer to the same disaster reported to recommend an alert
-    final int LAST_X_DAYS = 12; // is used to get all events in the last X days
+    final int LAST_X_DAYS = 1; // is used to get all events in the last X days
     final int TOTAL_THREADS = 4; // number of threads to be used, 1 for each event type.
 
     public RecommendEventsWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -63,6 +63,7 @@ public class RecommendEventsWorker extends Worker {
 
         DatabaseReference dbEventsRef = FirebaseDB.getEventsReference();
 
+        //get each event in the last X days and add it to the list of its type
         dbEventsRef.orderByChild("timestamp").startAt(previousDate).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -100,6 +101,7 @@ public class RecommendEventsWorker extends Worker {
             }
         });
 
+        //each thread calculates the recommended alerts for each list of recent events
         for (int i = 0; i < TOTAL_THREADS; i++) {
 
             int finalI = i;

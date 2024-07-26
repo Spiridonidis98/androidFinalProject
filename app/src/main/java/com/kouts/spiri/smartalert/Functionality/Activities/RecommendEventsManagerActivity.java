@@ -1,4 +1,4 @@
-package com.kouts.spiri.smartalert.Functionality;
+package com.kouts.spiri.smartalert.Functionality.Activities;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +18,7 @@ import androidx.work.WorkManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Functionality.Background_Functions.RecommendEventsWorker;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.R;
 

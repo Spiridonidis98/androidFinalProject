@@ -17,6 +17,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Assistance.Helper;
+import com.kouts.spiri.smartalert.Functionality.Activities.LoginActivity;
 import com.kouts.spiri.smartalert.R;
 
 public class UserView extends DialogFragment {
