@@ -117,8 +117,6 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
-                                String message = getString(R.string.user_created_successfully);
-                                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
                                 Intent intent = new Intent(view.getContext(), UserExtraInfo.class);
                                 intent.putExtra("email", registerEmail.getText().toString());
                                 startActivity(intent);
@@ -145,12 +143,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()) {
-                            String message = getString(R.string.user_logged_in_successfully);
-                            Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
                             Intent intent = new Intent(view.getContext(), MainActivity.class);
                             startActivity(intent);
-
-
                         }
                         else {
                             Helper.showMessage(view.getContext(), "Error",task.getException().getLocalizedMessage());
@@ -170,6 +164,7 @@ public class LoginActivity extends AppCompatActivity {
                 public void onUserRetrieved(User user) {
                     if (user != null) { //if user exists, move to MainActivity
                         Helper.setUser(user);
+                        Helper.showToast(c,"Welcome back "+user.getName()+"!",Toast.LENGTH_SHORT);
                         Intent intent = new Intent(c, MainActivity.class);
                         startActivity(intent);
                     }

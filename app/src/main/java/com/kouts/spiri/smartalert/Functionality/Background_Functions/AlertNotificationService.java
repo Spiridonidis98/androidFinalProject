@@ -17,22 +17,31 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.Activities.MapsActivity;
 import com.kouts.spiri.smartalert.POJOs.Alert;
+import com.kouts.spiri.smartalert.POJOs.Event;
+import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.UserAlerts;
 import com.kouts.spiri.smartalert.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 public class AlertNotificationService extends Service {
 
     final int TRIGGER_TIME = 5; //check for alerts in the database AND repeats the check every X minutes
-
+    final long RECENT_EVENT_DAYS = 90L;
+    final int EXTRA_DISTANCE = 10; //extra notification radius for "worried" users
+    final int WORRIED_USER_INDICATOR = 3; //the number of events of one type that the user has reported recently that indicate he's "worried" about that event type
     private static boolean channelCreated = false;
     public AlertNotificationService() {
     }
@@ -68,38 +77,77 @@ public class AlertNotificationService extends Service {
     }
 
     private void checkAlerts() {
+        HashMap<EventTypes,Integer> userEvents = new HashMap<>(4);
+        for (EventTypes type: EventTypes.values()) { //initialize userEvents with the EventTypes
+            userEvents.put(type,0);
+        }
+
         long lastXMinutes = System.currentTimeMillis() - (TRIGGER_TIME * 60 * 1000);
 
-        //get recent alerts
-        FirebaseDB.getAlertReference().orderByChild("timestamp").startAt(Helper.timestampToDate(lastXMinutes)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        long lastXDays = System.currentTimeMillis() - (RECENT_EVENT_DAYS * 24 * 60 * 60 * 1000);
+
+        DatabaseReference dbEventsRef = FirebaseDB.getEventsReference();
+
+        CompletableFuture<Void> getUserEvents = new CompletableFuture<>();
+
+        //save the number of events of each type the current user has reported recently
+        dbEventsRef.orderByChild("timestamp").startAt(Helper.timestampToDate(lastXDays)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
-
                 DataSnapshot dataSnapshot = task.getResult();
+
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    Alert alert = data.getValue(Alert.class); //get each alert found
+                    Event event = data.getValue(Event.class);
 
-                    if (alert == null) {
-                        continue;
-                    }
-
-                    double locationLat = LocationService.getLocationLatitude();
-                    double locationLong = LocationService.getLocationLongitude();
-                    double distance;
-                    if (locationLat!=0 && locationLong!=0) { //user location exists and it's not the default value
-                        //calculate distance between user location and alert location
-                        distance = Helper.calculateGeoDistance(locationLat, locationLong, alert.getLatitude(), alert.getLongitude());
-                    } else {
-                        Log.d("AlarmNotificationService", "default location");
-                        return;
-                    }
-
-                    //send notification for alert near the user, if they haven't already been notified of that alert before
-                    if (distance <= alert.getRadius()) {
-                        notifyIfNewAlert(alert);
+                    if (event.getUid().equals(FirebaseDB.getAuth().getUid())) { //check that the event was made by the current user
+                        EventTypes eventType = event.getAlertType();
+                        int value = userEvents.get(eventType);
+                        userEvents.put(eventType,value+1); //add the user's event to the appropriate type in the hashmap
                     }
                 }
+                getUserEvents.complete(null); //signal that this DB call has finished and the next one can begin
             }
+        });
+
+        getUserEvents.thenRun(() -> { //ensures this DB call only happens after the first one has finished
+            //get recent alerts
+            FirebaseDB.getAlertReference().orderByChild("timestamp").startAt(Helper.timestampToDate(lastXMinutes)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                    DataSnapshot dataSnapshot = task.getResult();
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        Alert alert = data.getValue(Alert.class); //get each alert found
+
+                        if (alert == null) {
+                            continue;
+                        }
+
+                        double locationLat = LocationService.getLocationLatitude();
+                        double locationLong = LocationService.getLocationLongitude();
+                        double distance;
+                        if (locationLat != 0 && locationLong != 0) { //user location exists and it's not the default value
+                            //calculate distance between user location and alert location
+                            distance = Helper.calculateGeoDistance(locationLat, locationLong, alert.getLatitude(), alert.getLongitude());
+                            Log.d("AlarmNotificationService", "distance : " +distance);
+                        } else {
+                            Log.d("AlarmNotificationService", "default location");
+                            return;
+                        }
+
+                        //if the user has reported a lot of events of the same type as the alert recently, enlarge the notification radius
+                        int extraDistance = 0;
+                        if (userEvents.get(alert.getEventType()) >= WORRIED_USER_INDICATOR) {
+                            extraDistance = EXTRA_DISTANCE;
+                        }
+
+                        //send notification for alert near the user, if they haven't already been notified of that alert before
+                        if (distance <= alert.getRadius() + extraDistance) {
+                            notifyIfNewAlert(alert);
+                        }
+                    }
+                }
+            });
         });
     }
 

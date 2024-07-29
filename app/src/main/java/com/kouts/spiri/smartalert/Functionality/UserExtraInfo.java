@@ -59,8 +59,8 @@ public class UserExtraInfo extends AppCompatActivity {
 
             @Override
             public void onUserAdded() {
-                String message = getString(R.string.user_created_successfully);
-                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
+                Helper.showToast(view.getContext(),"Welcome "+newUser.getName()+"!",Toast.LENGTH_SHORT);
+
                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                 startActivity(intent);
             }
