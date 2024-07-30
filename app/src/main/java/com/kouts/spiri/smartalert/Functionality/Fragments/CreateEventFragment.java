@@ -5,6 +5,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.kouts.spiri.smartalert.Assistance.Helper.timestampToDate;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -53,6 +55,8 @@ public class CreateEventFragment extends Fragment {
     private View view;
 
     private static final int CAMERA_PERMISSION_CODE = 101;
+    private static final int EXCLAMATION_THRESHOLD = 3; //minimum number of exclamations in a comment that result in a warning message
+
     private static final int READ_IMAGES_CODE = 1;
     private static final int REQUEST_PERMISSION = 200;
     Button addEventButton;
@@ -60,6 +64,8 @@ public class CreateEventFragment extends Fragment {
     String selectedSpinnerItem;
     EditText comment;
     ImageView fileImage, cameraImage, showImage;
+    EventTypes selectedEventType;
+    double currentLatitude,currentLongitude;
     long timestamp;
     Uri selectedImage;
     public CreateEventFragment() {
@@ -88,7 +94,7 @@ public class CreateEventFragment extends Fragment {
 
         addEventButton = view.findViewById(R.id.buttonSubmitEvent);
 
-        addEventButton.setOnClickListener(v -> createEvent(v));
+        addEventButton.setOnClickListener(v -> checkEventValidity(v));
 
         comment = view.findViewById(R.id.editTextComments);
         fileImage = view.findViewById(R.id.openFile);
@@ -170,9 +176,9 @@ public class CreateEventFragment extends Fragment {
         });
     }
 
-    public void createEvent(View v) {
+    public void checkEventValidity(View v) {
         //get selected event type
-        EventTypes selectedEventType = Arrays.stream(EventTypes.values())
+        selectedEventType = Arrays.stream(EventTypes.values())
                 .filter(eventType -> eventType.toString().equalsIgnoreCase(selectedSpinnerItem))
                 .findFirst()
                 .orElse(null);
@@ -182,11 +188,11 @@ public class CreateEventFragment extends Fragment {
             Helper.showMessage(view.getContext(), "Error", message);
             return;
         }
-        double currentLatitude = LocationService.getLocationLatitude();
-        double currentLongitude = LocationService.getLocationLongitude();
-        long timestamp = LocationService.getLocationTime();
+        currentLatitude = LocationService.getLocationLatitude();
+        currentLongitude = LocationService.getLocationLongitude();
+        timestamp = LocationService.getLocationTime();
 
-        if (currentLatitude==0 || currentLongitude == 0 || timestamp==0) {
+        if (currentLatitude == 0 || currentLongitude == 0 || timestamp == 0) {
             String message = getString(R.string.location_not_found_please_try_again);
             Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
             return;
@@ -197,6 +203,63 @@ public class CreateEventFragment extends Fragment {
             return;
         }
 
+        String commentText = comment.getText().toString();
+        int commentExclamations = Helper.countTextPattern(commentText, "!");
+
+        //if there are many exclamations or all CAPS suggest that the user calls emergency services
+        boolean possibleEmergency = commentExclamations >= EXCLAMATION_THRESHOLD || commentText.equals(commentText.toUpperCase());
+        if (possibleEmergency) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            String message = getString(R.string.suggest_emergency_services_call);
+            builder.setTitle("Warning");
+            builder.setMessage(message);
+
+            builder.setNeutralButton("OK", (dialog, which) -> {
+                if (which == DialogInterface.BUTTON_NEUTRAL) {
+                    createEvent(v);
+                }
+            });
+            builder.setOnCancelListener(dialog -> createEvent(v));
+            builder.show();
+            return; //stop execution since execution will continue appropriately when the user closes the AlertDialog
+        }
+
+
+        //if there is a long comment but no image, assume the situation is not critical and ask if the user wants to add an image before adding the event
+        if (commentText.length() >= 150) {
+            if (selectedImage != null) {
+                return;
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setTitle("Warning");
+            String message = getString(R.string.proceed_without_an_image);
+            builder.setMessage(message);
+
+            String positiveText = getString(R.string.yes);
+            String negativeText = getString(R.string.no);
+            builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // Handle Yes button click
+                    if (which == DialogInterface.BUTTON_POSITIVE) {
+                        createEvent(v);
+                    }
+                }
+            });
+            builder.setNegativeButton(negativeText, (dialog, which) -> {
+                // Handle No button click
+                if (which == DialogInterface.BUTTON_NEGATIVE) {
+                    return;
+                }
+            });
+            builder.show();
+        } else { //if the comment is short simply create the event
+            createEvent(v);
+        }
+
+    }
+    public void createEvent(View v) {
         Event event = null;
         if (selectedImage == null) { //do not include image to Event
             event = new Event(FirebaseDB.getAuth().getUid(), selectedEventType, currentLatitude, currentLongitude, timestampToDate(timestamp), comment.getText().toString(), "");

@@ -50,7 +50,7 @@
     <string name="required_data_is_missing">Required data is missing</string>
     <string name="unknown_error_occurred_user_could_not_be_submitted">Unknown error occurred. User could not be submitted</string>
     <string name="title_activity_maps">MapsActivity</string>
-    <string name="no_notifications_found_for_the_given_criteria"/>
+    <string name="no_notifications_found_for_the_given_criteria">No notifications found for the given criteria.</string>
     <string-array name="navigation">
         <item>Events</item>
         <item>Create Event</item>
@@ -61,5 +61,9 @@
         <item>Civil Functionality</item>
         <item>Settings</item>
     </string-array>
+    <string name="suggest_emergency_services_call">If you are having an emergency, please call your local emergency services immediately!</string>
+    <string name="proceed_without_an_image">Do you want to proceed without adding an image?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
 </resources>

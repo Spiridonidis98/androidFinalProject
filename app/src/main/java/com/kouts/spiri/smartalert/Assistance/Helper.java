@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public abstract class Helper {
@@ -222,5 +225,16 @@ public abstract class Helper {
         int screenWidth = resources.getDisplayMetrics().widthPixels;
         int itemWidth = 600; // Adjust this value according to your item dimensions
         return screenWidth / itemWidth;
+    }
+
+    public static int countTextPattern(String text,String regex) {
+        Pattern pattern = Pattern.compile(regex); //set the pattern based on given regex
+        Matcher matcher = pattern.matcher(text); //find the pattern in the given text
+
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
     }
 }

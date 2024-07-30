@@ -58,4 +58,8 @@
         <item>Civil Functionality</item>
         <item>Settings</item>
     </string-array>
+    <string name="suggest_emergency_services_call">If you are having an emergency, please call your local emergency services immediately!</string>
+    <string name="proceed_without_an_image">Do you want to proceed without adding an image?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

@@ -58,5 +58,9 @@
         <item>Πολιτική</item>
         <item>Ρυθμίσεις</item>
     </string-array>
+    <string name="suggest_emergency_services_call">Αν βρίσκεστε σε επείγουσα κατάσταση, παρακαλώ καλέστε τις τοπικές σας υπηρεσίες έκτακτης ανάγκης!</string>
+    <string name="proceed_without_an_image">Θέλετε να προχωρήσετε χωρίς να προσθέσετε εικόνα;</string>
+    <string name="yes">Ναι</string>
+    <string name="no">Όχι</string>
 
 </resources>
