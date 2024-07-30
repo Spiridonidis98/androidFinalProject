@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_civil);
                 bottomNavigationView.setSelectedItemId(R.id.civilSafetyFunctionality);
                 // Retrieve the string array
-                String[] menuLabels = getResources().getStringArray(R.array.navigation);
+                String[] menuLabels = getResources().getStringArray(R.array.navigation_civil);
                 // Set the titles of the menu items
                 bottomNavigationView.getMenu().findItem(R.id.notification_alert).setTitle(menuLabels[0]);
                 bottomNavigationView.getMenu().findItem(R.id.civilSafetyFunctionality).setTitle(menuLabels[1]);
