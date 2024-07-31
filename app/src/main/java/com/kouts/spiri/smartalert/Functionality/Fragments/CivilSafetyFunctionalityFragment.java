@@ -207,14 +207,14 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
 
         //here we confirm the creation of an alert
         confirmButton.setOnClickListener(v -> {
-            int warning = 0;
-            if(listOfEvents.size() >= 5 && listOfEvents.size() < 10) {
+            int warning;
+            if(listOfEvents.size() < 10) {
                 warning = 1;
             }
-            else if (listOfEvents.size() >= 10) {
+            else {
                 warning = 2;
             }
-            Alert newAlert = new Alert(alertEvent.getAlertType() + " at " + alertEvent.getTimestamp(), Helper.timestampToDate(System.currentTimeMillis()), warning, alertEvent.getAlertType(), alertEvent.getLatitude(), alertEvent.getLongitude(), ALERT_RADIUS);
+            Alert newAlert = new Alert(alertEvent.getAlertType() + " at " + alertEvent.getTimestamp(), Helper.timestampToDate(System.currentTimeMillis()), warning, alertEvent.getAlertType(), alertEvent.getLatitude(), alertEvent.getLongitude(), ALERT_RADIUS, listOfEvents);
             FirebaseDB.addAlert(newAlert, new FirebaseDB.FirebaseAlertListener() {
                 @Override
                 public void alertAdded() {

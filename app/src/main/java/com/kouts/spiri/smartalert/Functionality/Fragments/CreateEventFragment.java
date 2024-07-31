@@ -15,6 +15,7 @@ import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -32,6 +33,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
@@ -39,6 +43,7 @@ import com.google.firebase.storage.StorageReference;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.Activities.MainActivity;
+import com.kouts.spiri.smartalert.POJOs.Alert;
 import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.R;
@@ -47,16 +52,19 @@ import com.kouts.spiri.smartalert.Functionality.Background_Functions.LocationSer
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class CreateEventFragment extends Fragment {
     private View view;
 
     private static final int CAMERA_PERMISSION_CODE = 101;
     private static final int EXCLAMATION_THRESHOLD = 3; //minimum number of exclamations in a comment that result in a warning message
-
+    private static final int DEFAULT_WEIGHT = 1;
+    private static final long LAST_X_MONTHS = 6; //approximate. Assuming each month has 30 days
     private static final int READ_IMAGES_CODE = 1;
     private static final int REQUEST_PERMISSION = 200;
     Button addEventButton;
@@ -260,30 +268,69 @@ public class CreateEventFragment extends Fragment {
 
     }
     public void createEvent(View v) {
-        Event event = null;
-        if (selectedImage == null) { //do not include image to Event
-            event = new Event(FirebaseDB.getAuth().getUid(), selectedEventType, currentLatitude, currentLongitude, timestampToDate(timestamp), comment.getText().toString(), "");
-        } else { //include selected image to Event
-            String imageUUID = UUID.randomUUID().toString();
-            String userUID = FirebaseDB.getAuth().getUid();
-            event = new Event(userUID, selectedEventType, currentLatitude ,currentLongitude, timestampToDate(timestamp), comment.getText().toString(), imageUUID);
-            uploadImageToFirebase(selectedImage, imageUUID, userUID);
-        }
-        FirebaseDB.addEvent(event, new FirebaseDB.FirebaseEventListener() {
-            @Override
-            public void onEventsRetrieved(List<Event> event) {};
-            @Override
-            public void onEventAdded() {
-                String message = getString(R.string.event_submitted_successfully);
-                Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
-                Intent intent = new Intent(view.getContext(), MainActivity.class);
-                startActivity(intent);
-            }
 
+        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
+        calculateEventWeight(completableFuture);
+
+        completableFuture.thenAccept(weight -> {
+            Event event;
+            if (selectedImage == null) { //do not include image to Event
+                event = new Event(FirebaseDB.getAuth().getUid(), selectedEventType, currentLatitude, currentLongitude, timestampToDate(timestamp), comment.getText().toString(), "", weight);
+            } else { //include selected image to Event
+                String imageUUID = UUID.randomUUID().toString();
+                String userUID = FirebaseDB.getAuth().getUid();
+                event = new Event(userUID, selectedEventType, currentLatitude ,currentLongitude, timestampToDate(timestamp), comment.getText().toString(), imageUUID, weight);
+                uploadImageToFirebase(selectedImage, imageUUID, userUID);
+            }
+            FirebaseDB.addEvent(event, new FirebaseDB.FirebaseEventListener() {
+                @Override
+                public void onEventsRetrieved(List<Event> event) {};
+                @Override
+                public void onEventAdded() {
+                    String message = getString(R.string.event_submitted_successfully);
+                    Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
+                    Intent intent = new Intent(view.getContext(), MainActivity.class);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    String message = getString(R.string.unknown_error_occurred_event_could_not_be_submitted);
+                    Helper.showMessage(view.getContext(), "Error", message);
+                }
+            });
+        });
+    }
+
+    private void calculateEventWeight(CompletableFuture<Integer> completableFuture) {
+
+        Log.d("CreateEventFragment", "calculateEventWeight: entered!");
+        long lastXMonths = System.currentTimeMillis() - (LAST_X_MONTHS * 30 * 24 * 60 * 60 * 1000);
+        FirebaseDB.getAlertReference().orderByChild("timestamp").startAt(lastXMonths).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
-            public void onError(Exception e) {
-                String message = getString(R.string.unknown_error_occurred_event_could_not_be_submitted);
-                Helper.showMessage(view.getContext(), "Error", message);
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                int weight = DEFAULT_WEIGHT;
+
+                if (!task.isSuccessful()) {
+                    Log.d("CreateEventFragment", "calculateEventWeight: task unsuccessful");
+                    completableFuture.complete(weight);
+                    return;
+                }
+
+                for (DataSnapshot dataSnapshot : task.getResult().getChildren()) {
+                    Alert alert = dataSnapshot.getValue(Alert.class);
+
+                    ArrayList<Event> events = alert.getAlertEvents();
+                    for (Event event: events) {
+                        if (FirebaseDB.getAuth().getUid().equals(event.getUid())) {
+                            weight++;
+                            completableFuture.complete(weight);
+                            return;
+                        }
+                    }
+                }
+                completableFuture.complete(weight);
+                Log.d("CreateEventFragment", "calculateEventWeight: db call finished");
             }
         });
     }
