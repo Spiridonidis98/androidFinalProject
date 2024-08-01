@@ -6,6 +6,8 @@
         <item>Earthquake</item>
         <item>Tornado</item>
     </string-array>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
     <string name="app_name">SmartAlert</string>
     <string name="submit_event">Submit Event</string>
     <string name="comments">Comments</string>
@@ -43,7 +45,7 @@
     <string name="no_events_found_for_the_given_criteria">No events found for the given criteria</string>
     <string name="user_created_successfully">User created successfully</string>
     <string name="user_logged_in_successfully">User logged in successfully</string>
-    <string name="user_not_found_in_the_database">User not found in the database</string>
+    <string name="user_not_found_in_the_database">User not found in the database. Please add the required information to continue</string>
     <string name="required_data_is_missing">Required data is missing</string>
     <string name="unknown_error_occurred_user_could_not_be_submitted">Unknown error occurred. User could not be submitted</string>
     <string name="no_notifications_found_for_the_given_criteria">No notifications found for the given criteria.</string>
