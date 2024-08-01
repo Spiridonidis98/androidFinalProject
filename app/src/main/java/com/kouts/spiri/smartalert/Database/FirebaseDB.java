@@ -23,9 +23,13 @@ import com.kouts.spiri.smartalert.POJOs.EventTypes;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.POJOs.UserAlerts;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class FirebaseDB {
@@ -263,7 +267,9 @@ public class FirebaseDB {
                     UserAlerts temp = snap.getValue(UserAlerts.class);
 
                     if(temp != null ){
-                       userAlertsFound = temp;
+                        temp.setAlerts(isWithInRange(temp.getAlerts(), startDate, endDate));
+                        userAlertsFound = temp;
+
                     }
                 }
                 listener.onUserAlertsRetrieved(userAlertsFound);
@@ -274,6 +280,34 @@ public class FirebaseDB {
 
             }
         });
+    }
+
+    private static ArrayList<Alert> isWithInRange(ArrayList<Alert> temp, String startDate, String endDate) {
+        try {
+            ArrayList<Alert> filtered = new ArrayList<Alert>();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.getDefault());
+            Date start = sdf.parse(startDate);
+            Date end = sdf.parse(endDate);
+
+            temp.stream().forEach( a -> {
+                try {
+                    Date alertDate = sdf.parse(a.getTimestamp());
+
+                    if(alertDate != null && alertDate.after(start) && alertDate.before(end)) {
+                       filtered.add(a);
+                    }
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            return filtered;
+
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return temp;
+        }
     }
     public interface FirebaseUserAlertGetterListener {
         void onUserAlertsRetrieved(UserAlerts userAlerts);

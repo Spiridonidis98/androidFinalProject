@@ -21,4 +21,8 @@ public class UserAlerts {
     public ArrayList<Alert> getAlerts() {
         return alerts;
     }
+
+    public void setAlerts(ArrayList<Alert> alerts) {
+        this.alerts = alerts;
+    }
 }
