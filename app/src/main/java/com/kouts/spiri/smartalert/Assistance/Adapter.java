@@ -83,13 +83,21 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     private void getEventImage(Event event, ImageView imageView) {
 
+        if(event.getImage().isEmpty()) {
+            Glide.with(mContext)
+                    .load(R.drawable.baseline_crisis_alert_24)
+                    .error(R.drawable.baseline_crisis_alert_24)
+                    .into(imageView);
+
+            return;
+        }
         FirebaseDB.getImageFromStorage(event.getImage(), new FirebaseDB.FirebaseStorageListener() {
             @Override
             public void onImageRetrieved(Uri image) {
                 event.setImageURI(image);
                 Glide.with(mContext)
                         .load(image)
-                        .error(R.drawable.home)
+                        .error(R.drawable.baseline_crisis_alert_24)
                         .into(imageView);
             }
 
@@ -121,7 +129,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
         Glide.with(mContext)
                 .load(event.getImageURI())
-                .error(R.drawable.home)
+                .error(R.drawable.baseline_crisis_alert_24)
                 .into(imageView);
 
         mapIcon.setOnClickListener(v -> {
