@@ -59,7 +59,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:itemTextColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/primarycolor">
+        android:background="@color/primarycolor"
+        app:itemIconTint="@color/nav_color">
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 </androidx.constraintlayout.widget.ConstraintLayout>
 

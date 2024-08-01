@@ -3,14 +3,17 @@
     <item
         android:id="@+id/notification_alert"
         android:title="Events"
-        android:icon="@drawable/stats"/>
+        android:icon="@drawable/stats"
+        android:iconTint="@color/white"/>
     <item
         android:id="@+id/civilSafetyFunctionality"
         android:title="Civil Functionality"
-        android:icon="@drawable/announcement"/>
+        android:icon="@drawable/announcement"
+        android:iconTint="@color/white"/>
 
     <item
         android:id="@+id/personInfo"
         android:title="Settings"
-        android:icon="@drawable/person"/>
+        android:icon="@drawable/person"
+        android:iconTint="@color/white"/>
 </menu>

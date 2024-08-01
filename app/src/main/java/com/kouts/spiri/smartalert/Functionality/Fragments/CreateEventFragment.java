@@ -67,6 +67,7 @@ public class CreateEventFragment extends Fragment {
     EventTypes selectedEventType;
     double currentLatitude,currentLongitude;
     long timestamp;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
     Uri selectedImage;
     public CreateEventFragment() {
         // Required empty public constructor
@@ -105,12 +106,20 @@ public class CreateEventFragment extends Fragment {
         fileImage.setImageResource(R.drawable.file);
         cameraImage.setImageResource(R.drawable.camera);
 
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                Bundle extras = result.getData().getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                selectedImage = saveBitmapToFile(imageBitmap);
+                showImage.setImageBitmap(imageBitmap); // Shows the captured image in the ImageView
+                showImage.setVisibility(View.VISIBLE);
+            }
+        });
 
-        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-        } else {
-            openCamera();
-        };
+        cameraImage.setOnClickListener(v -> {
+            checkCameraPermission();
+        });
+
 
         selectImageListener();
         selectEventTypeListener();
@@ -119,21 +128,8 @@ public class CreateEventFragment extends Fragment {
     }
 
     public void openCamera() {
-        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Bundle extras = result.getData().getExtras();
-                        Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        selectedImage = saveBitmapToFile(imageBitmap);
-                        showImage.setImageBitmap(imageBitmap); // Shows the captured image in the ImageView
-                        showImage.setVisibility(View.VISIBLE);
-                    }
-                });
-        cameraImage.setOnClickListener(l -> {
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            activityResultLauncher.launch(cameraIntent);
-        });
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        activityResultLauncher.launch(cameraIntent);
     }
 
     private Uri saveBitmapToFile(Bitmap bitmap) {
@@ -307,6 +303,14 @@ public class CreateEventFragment extends Fragment {
                 }).addOnFailureListener(e -> {
                     Log.e("Upload image", "Failed to upload image", e);
                 });
+    }
+
+    private void checkCameraPermission() {
+        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        } else {
+            openCamera();
+        };
     }
 
 }

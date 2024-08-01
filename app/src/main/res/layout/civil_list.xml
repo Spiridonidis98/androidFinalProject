@@ -52,6 +52,7 @@
         android:textColor="@color/white"
         android:backgroundTint="@color/primarycolor"></Button>
         <Button
+            android:visibility="invisible"
             android:layout_gravity="center"
             android:layout_weight="1"
             android:id="@+id/cancel_button"
