@@ -6,6 +6,8 @@
         <item>Σεισμός</item>
         <item>Ανεμοστρόβυλος</item>
     </string-array>
+    <string name="email">Email</string>
+    <string name="password">Κωδικός</string>
     <string name="app_name">SmartAlert</string>
     <string name="submit_event">Καταχώρησε περιστατικό</string>
     <string name="comments">Σχόλια</string>
@@ -43,7 +45,7 @@
     <string name="no_events_found_for_the_given_criteria">"Δεν βρέθηκαν γεγονότα με αυτά τα κριτήρια "</string>
     <string name="user_created_successfully">Ο χρήστης δημιουργήθηκε επιτυχώς</string>
     <string name="user_logged_in_successfully">Ο χρήστης συνδέθηκε επιτυχώς</string>
-    <string name="user_not_found_in_the_database">Ο χρήστης δεν βρέθηκε στη βάση δεδομένων</string>
+    <string name="user_not_found_in_the_database">Ο χρήστης δεν βρέθηκε στη βάση δεδομένων. Παρακαλούμε προσθέστε τα απαραίτητα στοιχεία για να συνεχίσετε.</string>
     <string name="required_data_is_missing">Απουσία απαραίτητων δεδομένων</string>
     <string name="unknown_error_occurred_user_could_not_be_submitted">Προέκυψε σφάλμα. Ο χρήστης δεν μπόρεσε να καταχωρηθεί</string>
     <string name="no_notifications_found_for_the_given_criteria">Δεν βρέθηκαν ειδοποιήσεις για τα δοθέντα κριτήρια.</string>

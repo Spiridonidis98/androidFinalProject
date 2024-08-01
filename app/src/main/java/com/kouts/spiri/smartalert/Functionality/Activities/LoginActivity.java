@@ -169,9 +169,14 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                     else {
-                        Log.d("USER NOT FOUND ERROR", "User not found in the database");
                         String message = getString(R.string.user_not_found_in_the_database);
-                        Helper.showMessage(c, "Error",message);
+                        Helper.showToast(c, message, Toast.LENGTH_LONG);
+                        Intent intent = new Intent(c, UserExtraInfo.class);
+                        intent.putExtra("email", FirebaseDB.getAuth().getCurrentUser().getEmail());
+                        startActivity(intent);
+                        Log.d("USER NOT FOUND ERROR", "User not found in the database");
+
+
                     }
                 }
 
