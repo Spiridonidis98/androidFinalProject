@@ -10,10 +10,11 @@ public class Event {
     private String comment;
     private String image; //optional
     private Uri imageURI; //optional
+    private int weight; //how accurate the event is considered to be
 
     public Event() {}
 
-    public Event(String uid, EventTypes alertType, double latitude, double longitude, String timestamp, String comment, String image) {
+    public Event(String uid, EventTypes alertType, double latitude, double longitude, String timestamp, String comment, String image, int weight) {
         this.uid = uid;
         this.alertType = alertType;
         this.latitude = latitude;
@@ -21,6 +22,7 @@ public class Event {
         this.timestamp = timestamp;
         this.comment = comment;
         this.image = image;
+        this.weight = weight;
     }
 
     public void setImageURI(Uri imageURI) { this.imageURI = imageURI;}
@@ -52,6 +54,7 @@ public class Event {
     public String getImage() {
         return image;
     }
+    public int getWeight() { return weight; }
 
     @Override
     public String toString() {
