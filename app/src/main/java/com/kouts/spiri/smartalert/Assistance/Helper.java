@@ -6,10 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -236,5 +237,26 @@ public abstract class Helper {
             count++;
         }
         return count;
+    }
+
+    public static SQLiteDatabase createLocalDB(Context context) {
+        SQLiteDatabase database = context.openOrCreateDatabase("userPreferences.db",Context.MODE_PRIVATE,null);
+
+        database.execSQL("Create table if not exists Preferences(" +
+                "UID TEXT PRIMARY KEY," +
+                "selectedEventType TEXT," +
+                "notifCheckboxFire INTEGER," + //booleans: 1 symbolizes TRUE, 0 is FALSE
+                "notifCheckboxFlood INTEGER," +
+                "notifCheckboxEarthquake INTEGER,"+
+                "notifCheckboxTornado INTEGER)");
+
+        Cursor cursor = database.rawQuery("Select * from Preferences WHERE UID = ? LIMIT 1" , new String[]{FirebaseDB.getAuth().getUid()});
+        if (! cursor.moveToFirst()) {
+            String[] data = {FirebaseDB.getAuth().getUid(),"FIRE","1","1","1","1"};
+            database.execSQL("Insert or ignore into Preferences values(?,?,?,?,?,?)", data);
+        }
+        //database.execSQL("Delete from Preferences");
+
+        return database;
     }
 }

@@ -5,9 +5,12 @@ import static android.app.Activity.RESULT_OK;
 import static com.kouts.spiri.smartalert.Assistance.Helper.timestampToDate;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 ;
 import android.net.Uri;
@@ -53,7 +56,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -77,6 +79,8 @@ public class CreateEventFragment extends Fragment {
     long timestamp;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     Uri selectedImage;
+    SQLiteDatabase database;
+
     public CreateEventFragment() {
         // Required empty public constructor
     }
@@ -100,6 +104,8 @@ public class CreateEventFragment extends Fragment {
 
 
         Helper.validateCurrentUser(view.getContext());
+
+        database = Helper.createLocalDB(view.getContext());
 
         addEventButton = view.findViewById(R.id.buttonSubmitEvent);
 
@@ -169,6 +175,9 @@ public class CreateEventFragment extends Fragment {
     }
     private void selectEventTypeListener() {
         Helper.addOptionsToSpinner(view.getContext(), R.array.spinnerEventTypes, android.R.layout.simple_spinner_dropdown_item, spinner);
+
+        setDefaultSpinnerItem(spinner);
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { //when an item is selected get that item
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -181,11 +190,16 @@ public class CreateEventFragment extends Fragment {
     }
 
     public void checkEventValidity(View v) {
-        //get selected event type
-        selectedEventType = Arrays.stream(EventTypes.values())
-                .filter(eventType -> eventType.toString().equalsIgnoreCase(selectedSpinnerItem))
-                .findFirst()
-                .orElse(null);
+
+        if (selectedSpinnerItem.equals(getString(R.string.fire))) {
+            selectedEventType = EventTypes.FIRE;
+        } else if (selectedSpinnerItem.equals(getString(R.string.flood))) {
+            selectedEventType = EventTypes.FLOOD;
+        } else if (selectedSpinnerItem.equals(getString(R.string.earthquake))) {
+            selectedEventType = EventTypes.EARTHQUAKE;
+        } else if (selectedSpinnerItem.equals(getString(R.string.tornado))) {
+            selectedEventType = EventTypes.TORNADO;
+        }
 
         if (selectedEventType == null) {
             String message = getString(R.string.no_selected_event_type_found);
@@ -206,6 +220,8 @@ public class CreateEventFragment extends Fragment {
             Helper.showToast(view.getContext(), message, Toast.LENGTH_LONG);
             return;
         }
+
+        setEventTypePreference(); //changes the default eventType
 
         String commentText = comment.getText().toString();
         int commentExclamations = Helper.countTextPattern(commentText, "!");
@@ -350,6 +366,38 @@ public class CreateEventFragment extends Fragment {
                 }).addOnFailureListener(e -> {
                     Log.e("Upload image", "Failed to upload image", e);
                 });
+    }
+
+    //sets this eventType preference as the default for the next time the user creates an event
+    private void setEventTypePreference() {
+        if (selectedEventType != null) {
+            ContentValues values = new ContentValues();
+            values.put("selectedEventType", selectedEventType.toString());
+            database.update("Preferences", values, "UID = ?", new String[]{FirebaseDB.getAuth().getUid()});
+        }
+    }
+
+    private void setDefaultSpinnerItem(Spinner spinner) {
+        spinner.setSelection(0); //first item is default
+
+        Cursor cursor = database.rawQuery("Select * from Preferences WHERE UID = ? LIMIT 1" , new String[]{FirebaseDB.getAuth().getUid()});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            cursor.moveToFirst();
+            Log.d("createEventFragment", "selectEventTypeListener: "+ cursor.getString(1));
+
+            String eventType = cursor.getString(1);
+            if (eventType.equals(EventTypes.FIRE.toString())) {
+                spinner.setSelection(0);
+            } else if (eventType.equals(EventTypes.FLOOD.toString())) {
+                spinner.setSelection(1);
+            } else if (eventType.equals(EventTypes.EARTHQUAKE.toString())) {
+                spinner.setSelection(2);
+            } else if (eventType.equals(EventTypes.TORNADO.toString())) {
+                spinner.setSelection(3);
+            }
+            cursor.close();
+        }
     }
 
     private void checkCameraPermission() {

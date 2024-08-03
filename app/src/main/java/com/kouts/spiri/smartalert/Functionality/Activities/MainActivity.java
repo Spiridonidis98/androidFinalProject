@@ -4,8 +4,12 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     NotificationListFragment notificationListFragment = new NotificationListFragment();
     CreateEventFragment createEventFragment = new CreateEventFragment();
     CivilSafetyFunctionalityFragment civilSafetyFunctionalityFragment = new CivilSafetyFunctionalityFragment();
+    SQLiteDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +60,9 @@ public class MainActivity extends AppCompatActivity {
         startNecessaryServices(this);
 
         settingLanguage();
+        languageDelay();
 
+        database = Helper.createLocalDB(this);
         // Get user info and update UI after retrieval
         getUserInfo(new UserInfoCallback() {
             @Override
@@ -215,5 +222,17 @@ public class MainActivity extends AppCompatActivity {
             locationService.putExtra("permission_granted",scheduleExactAlarmPerm);
             startService(locationService);
         }
+    }
+
+    private void languageDelay() { //prevents spamming of the language button which can break the app
+        languageImg.setClickable(false);
+
+        //make clickable again after 1 seconds
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                languageImg.setClickable(true);
+            }
+        }, 1000); // 1 second
     }
 }

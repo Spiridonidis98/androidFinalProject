@@ -2,7 +2,7 @@
 <resources>
     <string-array name="spinnerEventTypes">
         <item>Πυρκαγιά</item>
-        <item>Πλυμμήρα</item>
+        <item>Πλημμύρα</item>
         <item>Σεισμός</item>
         <item>Ανεμοστρόβυλος</item>
     </string-array>
@@ -28,9 +28,9 @@
     <string name="search_events">Αναζήτηση Γεγονότος</string>
     <string name="comment">Σχόλιο</string>
     <string name="flood">Πλημμύρα</string>
-    <string name="tornado">Ανεμοστρόβιλος</string>
+    <string name="tornado">Ανεμοστρόβυλος</string>
     <string name="earthquake">Σεισμός</string>
-    <string name="fire">Φωτιά</string>
+    <string name="fire">Πυρκαγιά</string>
     <string name="select_date">"Επιλέξτε Ημερομηνία "</string>
     <string name="user_info">Στοιχεία Χρήστη</string>
     <string name="logout">Αποσύνδεση</string>
