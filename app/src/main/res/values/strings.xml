@@ -67,5 +67,9 @@
     <string name="proceed_without_an_image">Do you want to proceed without adding an image?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="my_locations">Οι διευθύνσεις μου</string>
+    <string name="personal_info">Προσωπικά στοιχεία</string>
+    <string name="update" />
+    <string name="confirm_password"></string>
 
 </resources>

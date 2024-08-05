@@ -7,7 +7,10 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -84,6 +87,44 @@ public class FirebaseDB {
 
         }
     }
+    
+
+    public static void updateUser(User editUser, final FireBaseUpdateUserListener listener) {
+        Query query = user.orderByChild("uid").equalTo(editUser.getUid());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(!snapshot.exists()) {
+                    listener.onError(new Exception());
+                    return;
+                }
+                for( DataSnapshot userSnapshot: snapshot.getChildren()) {
+                    if(userSnapshot.getKey().isEmpty()) {
+                        listener.onError(new Exception());
+                        return;
+                    }
+                    DatabaseReference userRef = user.child(userSnapshot.getKey());
+
+                    userRef.setValue(editUser).addOnSuccessListener( aVoid -> {
+                        listener.onUpdateUser();
+                    }).addOnFailureListener(e -> {
+                        listener.onError(e);
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+    public interface FireBaseUpdateUserListener {
+        void onUpdateUser();
+        void onError(Exception e);
+    }
+
 
     public static void addEvent(Event newEvent, final FirebaseEventListener listener) {
         if(auth.getCurrentUser() != null) {

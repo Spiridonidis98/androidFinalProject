@@ -64,4 +64,9 @@
     <string name="proceed_without_an_image">Do you want to proceed without adding an image?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="my_locations">My addresses</string>
+    <string name="personal_info">Personal Info</string>
+    <string name="update">Update</string>
+    <string name="confirm_password">Confirm password</string>
+
 </resources>

@@ -30,6 +30,7 @@ import com.kouts.spiri.smartalert.Database.FirebaseDB;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CivilSafetyFunctionalityFragment;
 import com.kouts.spiri.smartalert.Functionality.Fragments.CreateEventFragment;
 import com.kouts.spiri.smartalert.Functionality.Fragments.NotificationListFragment;
+import com.kouts.spiri.smartalert.Functionality.Fragments.SettingsFragment;
 import com.kouts.spiri.smartalert.Functionality.UserView;
 import com.kouts.spiri.smartalert.POJOs.User;
 import com.kouts.spiri.smartalert.R;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     NotificationListFragment notificationListFragment = new NotificationListFragment();
     CreateEventFragment createEventFragment = new CreateEventFragment();
     CivilSafetyFunctionalityFragment civilSafetyFunctionalityFragment = new CivilSafetyFunctionalityFragment();
+    SettingsFragment settingsFragment = new SettingsFragment();
     SQLiteDatabase database;
 
     @Override
@@ -117,9 +119,10 @@ public class MainActivity extends AppCompatActivity {
                         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createEventFragment).commit();
                     }
                     else if(menuItem.getItemId() == R.id.personInfo) {
-                        FragmentManager fragmentManager = getSupportFragmentManager();
-                        UserView userView = UserView.newInstance();
-                        userView.show(fragmentManager, "user_view");
+                        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, settingsFragment).commit();
+//                        FragmentManager fragmentManager = getSupportFragmentManager();
+//                        UserView userView = UserView.newInstance();
+//                        userView.show(fragmentManager, "user_view");
                     }
                     else if (menuItem.getItemId() == R.id.civilSafetyFunctionality) {
                         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, civilSafetyFunctionalityFragment).commit();

@@ -28,4 +28,16 @@ public class User {
     }
     public String getName() { return this.name; }
     public String getLastname() { return this.lastname;}
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
 }
