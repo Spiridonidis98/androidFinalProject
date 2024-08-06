@@ -68,5 +68,6 @@
     <string name="personal_info">Personal Info</string>
     <string name="update">Update</string>
     <string name="confirm_password">Confirm password</string>
+    <string name="no_addresses">No submitted addresses</string>
 
 </resources>

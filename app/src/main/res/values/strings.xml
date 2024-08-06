@@ -71,5 +71,6 @@
     <string name="personal_info">Προσωπικά στοιχεία</string>
     <string name="update" />
     <string name="confirm_password"></string>
+    <string name="no_addresses" />
 
 </resources>

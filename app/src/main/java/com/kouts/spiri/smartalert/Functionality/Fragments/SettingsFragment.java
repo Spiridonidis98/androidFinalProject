@@ -8,7 +8,9 @@ import androidx.fragment.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.kouts.spiri.smartalert.R;
 
@@ -64,6 +66,8 @@ public class SettingsFragment extends Fragment {
                 break;
             case "my_addresses":
                 //here we open the edit addresses of the user
+                MyAddressesFragment myAddressesFragment = new MyAddressesFragment();
+                myAddressesFragment.show(getChildFragmentManager(), "myAddresses");
                 break;
         }
     }

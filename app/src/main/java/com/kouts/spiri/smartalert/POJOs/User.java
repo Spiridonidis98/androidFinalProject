@@ -1,5 +1,7 @@
 package com.kouts.spiri.smartalert.POJOs;
 
+import java.util.ArrayList;
+
 public class User {
 
     private String uid;
@@ -7,6 +9,7 @@ public class User {
     private String name;
     private String lastname;
     private int type; // 0: politiki prostasia | 1: simple user
+    private ArrayList<Address> addresses = new ArrayList<>();
 
     public User(){}
     public User(String uid, String email, String name, String lastname, int type) {
@@ -40,4 +43,10 @@ public class User {
     public void setLastname(String lastname) {
         this.lastname = lastname;
     }
+
+    public void addAddress(Address address) {
+        this.addresses.add(address);
+    }
+
+    public ArrayList<Address> getAddresses() { return this.addresses; }
 }

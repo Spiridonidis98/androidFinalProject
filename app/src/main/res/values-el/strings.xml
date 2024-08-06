@@ -68,5 +68,8 @@
     <string name="personal_info">Προσωπικά στοιχεία</string>
     <string name="update">Ενημέρωση</string>
     <string name="confirm_password">Επιβεβαίωση κωδικού</string>
+    <string name="no_addresses">Δεν υπάρχουν καταχωρημένες διευθύνσεις</string>
+
+
 
 </resources>

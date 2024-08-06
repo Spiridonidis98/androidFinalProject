@@ -87,7 +87,11 @@ public class FirebaseDB {
 
         }
     }
-    
+
+    public static void updateEmail(String password) {
+
+    }
+
 
     public static void updateUser(User editUser, final FireBaseUpdateUserListener listener) {
         Query query = user.orderByChild("uid").equalTo(editUser.getUid());
