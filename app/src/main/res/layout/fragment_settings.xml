@@ -12,6 +12,8 @@
         android:orientation="vertical"
         android:padding="10dp">
 
+
+        <!--Personal info -->
         <LinearLayout
             android:id="@+id/personal_info"
             android:layout_gravity="center_vertical"
@@ -38,6 +40,7 @@
 
         </LinearLayout>
 
+        <!--My locations -->
         <LinearLayout
             android:id="@+id/my_locations"
             android:layout_gravity="center_vertical"
@@ -45,7 +48,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="20dp"
-            android:background="@drawable/left_side_color">
+            android:background="@drawable/left_side_color"
+            android:layout_marginBottom="10dp">
             <ImageView
                 android:layout_width="25dp"
                 android:layout_height="25dp"
@@ -58,6 +62,31 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/my_locations">
+            </TextView>
+
+        </LinearLayout>
+
+        <!--Questions -->
+        <LinearLayout
+            android:id="@+id/questionnaire"
+            android:layout_gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="20dp"
+            android:background="@drawable/left_side_color">
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="end"
+                android:src="@drawable/baseline_quiz_24">
+            </ImageView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/questioner">
             </TextView>
 
         </LinearLayout>

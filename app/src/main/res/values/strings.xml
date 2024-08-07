@@ -72,5 +72,6 @@
     <string name="update" />
     <string name="confirm_password"></string>
     <string name="no_addresses" />
+    <string name="questioner" />
 
 </resources>

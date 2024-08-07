@@ -53,6 +53,9 @@ public class SettingsFragment extends Fragment {
         LinearLayout myAddresses = settingsView.findViewById(R.id.my_locations);
         myAddresses.setOnClickListener(v -> menuClick("my_addresses"));
 
+        LinearLayout questionnaire = settingsView.findViewById(R.id.questionnaire);
+        questionnaire.setOnClickListener(v -> menuClick("questionnaire"));
+
 
         return settingsView;
     }
@@ -68,6 +71,10 @@ public class SettingsFragment extends Fragment {
                 //here we open the edit addresses of the user
                 MyAddressesFragment myAddressesFragment = new MyAddressesFragment();
                 myAddressesFragment.show(getChildFragmentManager(), "myAddresses");
+                break;
+            case "questionnaire":
+                QuestionnaireFragment questionnaireFragment = new QuestionnaireFragment();
+                questionnaireFragment.show(getChildFragmentManager(), "questionnaire");
                 break;
         }
     }
