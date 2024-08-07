@@ -66,7 +66,7 @@
 
         </LinearLayout>
 
-        <!--Questions -->
+        <!--Logout -->
         <LinearLayout
             android:id="@+id/questionnaire"
             android:layout_gravity="center_vertical"
@@ -74,7 +74,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="20dp"
-            android:background="@drawable/left_side_color">
+            android:background="@drawable/left_side_color"
+            android:layout_marginBottom="10dp">
             <ImageView
                 android:layout_width="25dp"
                 android:layout_height="25dp"
@@ -87,6 +88,27 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/questioner">
+            </TextView>
+
+        </LinearLayout>
+
+        <!--Questions -->
+        <LinearLayout
+            android:id="@+id/logout"
+            android:layout_gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="20dp"
+            android:background="@drawable/left_side_color">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/fire"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/logout">
             </TextView>
 
         </LinearLayout>

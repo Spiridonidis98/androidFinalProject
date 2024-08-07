@@ -1,5 +1,6 @@
 package com.kouts.spiri.smartalert.Functionality.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,6 +13,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.kouts.spiri.smartalert.Database.FirebaseDB;
+import com.kouts.spiri.smartalert.Functionality.Activities.LoginActivity;
+import com.kouts.spiri.smartalert.Functionality.Activities.MainActivity;
 import com.kouts.spiri.smartalert.R;
 
 /**
@@ -55,6 +59,13 @@ public class SettingsFragment extends Fragment {
 
         LinearLayout questionnaire = settingsView.findViewById(R.id.questionnaire);
         questionnaire.setOnClickListener(v -> menuClick("questionnaire"));
+
+        LinearLayout logout = settingsView.findViewById(R.id.logout);
+        logout.setOnClickListener(v -> {
+            FirebaseDB.getAuth().signOut();
+            Intent intent = new Intent(settingsView.getContext(), LoginActivity.class);
+            startActivity(intent);
+        });
 
 
         return settingsView;
