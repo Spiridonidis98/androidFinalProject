@@ -88,10 +88,6 @@ public class FirebaseDB {
         }
     }
 
-    public static void updateEmail(String password) {
-
-    }
-
 
     public static void updateUser(User editUser, final FireBaseUpdateUserListener listener) {
         Query query = user.orderByChild("uid").equalTo(editUser.getUid());
@@ -293,7 +289,7 @@ public class FirebaseDB {
     }
 
     //here we fetch the user alerts
-    public static void getUserAlerts(String startDate, String endDate, final FirebaseUserAlertGetterListener listener) {
+    public static void getUserAlerts(String startDate, String endDate,Boolean fireCheckbox, Boolean floodCheckbox, Boolean tornadoCheckbox, Boolean earthquakeCheckbox, final FirebaseUserAlertGetterListener listener) {
 
         Log.e("START", startDate);
         Log.e("End", endDate);
@@ -312,7 +308,7 @@ public class FirebaseDB {
                     UserAlerts temp = snap.getValue(UserAlerts.class);
 
                     if(temp != null ){
-                        temp.setAlerts(isWithInRange(temp.getAlerts(), startDate, endDate));
+                        temp.setAlerts(isWithInRange(temp.getAlerts(), startDate, endDate, fireCheckbox, floodCheckbox, tornadoCheckbox, earthquakeCheckbox));
                         userAlertsFound = temp;
 
                     }
@@ -327,7 +323,7 @@ public class FirebaseDB {
         });
     }
 
-    private static ArrayList<Alert> isWithInRange(ArrayList<Alert> temp, String startDate, String endDate) {
+    private static ArrayList<Alert> isWithInRange(ArrayList<Alert> temp, String startDate, String endDate, Boolean fireCheckbox, Boolean floodCheckbox, Boolean tornadoCheckbox, Boolean earthquakeCheckbox) {
         try {
             ArrayList<Alert> filtered = new ArrayList<Alert>();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.getDefault());
@@ -339,7 +335,12 @@ public class FirebaseDB {
                     Date alertDate = sdf.parse(a.getTimestamp());
 
                     if(alertDate != null && alertDate.after(start) && alertDate.before(end)) {
-                       filtered.add(a);
+                        if((fireCheckbox && a.getEventType() == EventTypes.FIRE)
+                                || (floodCheckbox && a.getEventType() == EventTypes.FLOOD)
+                                || (tornadoCheckbox && a.getEventType() == EventTypes.TORNADO)
+                                || (earthquakeCheckbox && a.getEventType() == EventTypes.EARTHQUAKE)) {
+                            filtered.add(a);
+                        }
                     }
                 } catch (ParseException e) {
                     throw new RuntimeException(e);

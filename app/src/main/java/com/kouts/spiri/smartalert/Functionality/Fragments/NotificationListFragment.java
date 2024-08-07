@@ -139,7 +139,7 @@ public class NotificationListFragment extends Fragment {
         String startDate = Helper.convertDateFormat(buttonDatePickerStart.getText().toString()) + " 00:00:00";
         String endDate = Helper.convertDateFormat(buttonDatePickerEnd.getText().toString()) + " 23:59:59";
 
-        FirebaseDB.getUserAlerts(startDate, endDate, new FirebaseDB.FirebaseUserAlertGetterListener() {
+        FirebaseDB.getUserAlerts(startDate, endDate,fireCheckbox.isChecked(), floodCheckbox.isChecked(), tornadoCheckbox.isChecked(), earthquakeCheckbox.isChecked(), new FirebaseDB.FirebaseUserAlertGetterListener() {
             @Override
             public void onUserAlertsRetrieved(UserAlerts userAlerts) {
                 if (userAlerts == null || userAlerts.getAlerts().isEmpty()) {
@@ -151,8 +151,7 @@ public class NotificationListFragment extends Fragment {
                 fixSearchResultText(userAlerts.getAlerts());
 
                 NotificationAdapter adapter = new NotificationAdapter(getContext(), userAlerts.getAlerts());
-                int spanCount = Helper.calculateSpanCount(getResources());
-                GridLayoutManager layout = new GridLayoutManager(getContext(), spanCount);
+                GridLayoutManager layout = new GridLayoutManager(getContext(), 1);
                 recyclerView.setLayoutManager(layout);
                 recyclerView.setAdapter(adapter);
 
