@@ -9,8 +9,10 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,9 +38,49 @@ import com.kouts.spiri.smartalert.R;
 
 public class CreateAddressFragment extends BottomSheetDialogFragment {
 
-    private double lat;
-    private double lon;
+    private int id;
+    private double lat = 0;
+    private double lon = 0;
     EditText description;
+    private Boolean isEdit = false;
+
+    public interface OnFragmentDismissListener {
+        void onFragmentDismissed();
+    }
+
+    private OnFragmentDismissListener onFragmentDismissListener;
+
+    public void setOnFragmentDismissListener(OnFragmentDismissListener listener) {
+        this.onFragmentDismissListener = listener;
+    }
+
+    private static final String ID = "ID";
+    private static final String LAT = "LAT";
+    private static final String LON = "LON";
+    private static final String DESCRIPTION = "DESCRIPTION";
+    private static final String ISEDIT = "ISEDIT";
+
+
+    public static CreateAddressFragment newInstance(int id, double lat, double lon, String description, Boolean isEdit) {
+        CreateAddressFragment fragment = new CreateAddressFragment();
+        Bundle args = new Bundle();
+        args.putInt(ID, id);
+        args.putString(DESCRIPTION, description);
+        args.putDouble(LAT, lat);
+        args.putDouble(LON, lon);
+        args.putBoolean(ISEDIT, isEdit);
+
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (onFragmentDismissListener != null) {
+            onFragmentDismissListener.onFragmentDismissed();
+        }
+    }
 
     public CreateAddressFragment() {
         // Use the custom style
@@ -49,29 +91,27 @@ public class CreateAddressFragment extends BottomSheetDialogFragment {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            // Get location from LocationService
-            lat = LocationService.getLocationLatitude();
-            lon = LocationService.getLocationLongitude();
 
             LatLng location;
-            if (lat != 0.0 && lon != 0.0) { // Ensure the location is valid
-                location = new LatLng(lat, lon);
+            location = new LatLng(lat, lon);
+            if (lat != 0 && lon != 0) {
+                googleMap.addMarker(new MarkerOptions().position(location).title("Your location"));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,12f));
+            }
 
-            }
-            else {
-                location = new LatLng(100, 100);
-            }
-            googleMap.addMarker(new MarkerOptions().position(location).title("Your location"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(location));
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,12f));
 
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull LatLng latLng) {
                     googleMap.clear();
-                    googleMap.addMarker(new MarkerOptions().position(latLng));
-                    lat = latLng.latitude;
-                    lon = latLng.longitude;
+                    if(latLng.latitude != 0 && latLng.longitude != 0) {
+                        lat = latLng.latitude;
+                        lon = latLng.longitude;
+                        googleMap.addMarker(new MarkerOptions().position(latLng));
+
+                    }
+
                 }
             });
         }
@@ -83,13 +123,30 @@ public class CreateAddressFragment extends BottomSheetDialogFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_address, container, false);
-        settingHeader(view);
-
         description = view.findViewById(R.id.addressName);
 
         Button saveButton = view.findViewById(R.id.save_button);
 
         saveButton.setOnClickListener(v -> this.save_address());
+        Bundle args = getArguments();
+        if (args != null) {
+            this.isEdit = args.getBoolean(ISEDIT);
+            if(args.getBoolean(ISEDIT)) {
+                this.id = args.getInt(ID);
+                this.lat = args.getDouble(LAT);
+                this.lon = args.getDouble(LON);
+                description.setText(args.getString(DESCRIPTION));
+
+            }
+            else {
+                this.lat = LocationService.getLocationLatitude();
+                this.lon = LocationService.getLocationLongitude();
+            }
+        }
+
+        settingHeader(view);
+
+
         return view;
     }
 
@@ -100,6 +157,24 @@ public class CreateAddressFragment extends BottomSheetDialogFragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.createAddressMap);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
+
+            View mapView = mapFragment.getView();
+            if (mapView != null) {
+                mapView.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        switch (event.getAction()) {
+                            case MotionEvent.ACTION_DOWN:
+                            case MotionEvent.ACTION_UP:
+                                v.getParent().requestDisallowInterceptTouchEvent(true);
+                                return false;
+                        }
+
+                        return false;
+                    }
+                });
+            }
+
         }
     }
 
@@ -116,6 +191,7 @@ public class CreateAddressFragment extends BottomSheetDialogFragment {
                 if (behavior != null) {
                     behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                     behavior.setSkipCollapsed(true);
+                    behavior.setDraggable(false); // Prevent dragging
                 }
             }
         }
@@ -144,9 +220,25 @@ public class CreateAddressFragment extends BottomSheetDialogFragment {
             return;
         }
 
-        Address newAddress = new Address(lat, lon, description.getText().toString());
+        if(lat == 0 && lon == 0) {
+            Helper.showMessage(getContext(), "Warning", "Please select a location on the map");
+            return;
+        }
 
-        Helper.getUser().addAddress(newAddress);
+        if(this.isEdit) {
+            Helper.getUser().getAddresses().stream().forEach( address -> {
+                if(address.getId() == this.id) {
+                    address.setLat(this.lat);
+                    address.setLon(this.lon);
+                    address.setDescription(this.description.getText().toString());
+                    return;
+                }
+            });
+        }
+        else {
+            Address newAddress = new Address(Helper.getUser().getAddresses().size(), this.lat, this.lon, this.description.getText().toString());
+            Helper.getUser().addAddress(newAddress);
+        }
 
         FirebaseDB.updateUser(Helper.getUser(), new FirebaseDB.FireBaseUpdateUserListener() {
             @Override
