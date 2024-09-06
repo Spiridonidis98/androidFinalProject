@@ -145,33 +145,34 @@ public class FirebaseDB {
     public static void addUserAlert(UserAlerts userAlerts, final FirebaseUserAlertListener listener) {
         DatabaseReference newUserAlertRef = userAlert;
 
-        if (userAlerts.getAlerts().size() > 1) { //if the list has more than one alert instead of creating new entry update the old one
-            newUserAlertRef.orderByChild("uid").equalTo(userAlerts.getUid()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (!task.isSuccessful()) {
-                        return;
-                    }
+        newUserAlertRef.orderByChild("uid").equalTo(userAlerts.getUid()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.d("addUserAlert", "onComplete: Task not successful");
+                    return;
+                }
 
-                    DataSnapshot dataSnapshot = task.getResult();
-                    for (DataSnapshot data: dataSnapshot.getChildren()) {
+                DataSnapshot dataSnapshot = task.getResult();
+                if (!dataSnapshot.hasChildren()) { //there is no existing entry so push new entry
+                    newUserAlertRef.push().setValue(userAlerts)
+                            .addOnSuccessListener(aVoid -> {
+                                //Successfully added user
+                                listener.onUserAlertAdded();
+                            })
+                            .addOnFailureListener(e -> {
+                                listener.onError(e);
+                            });
+                }
+                else { //if there is an existing entry update it
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
                         Map<String, Object> updates = new HashMap<>();
                         updates.put("alerts", userAlerts.getAlerts());
                         data.getRef().updateChildren(updates); //update the alerts of the existing entry
                     }
                 }
-            });
-        }
-        else { //push new entry
-            newUserAlertRef.push().setValue(userAlerts)
-                    .addOnSuccessListener(aVoid -> {
-                        //Successfully added user
-                        listener.onUserAlertAdded();
-                    })
-                    .addOnFailureListener(e -> {
-                        listener.onError(e);
-                    });
-        }
+            }
+        });
     }
 
     public static void getEvents(String startDate, String endDate, Boolean isFireChecked, Boolean isFloodChecked, Boolean isEarthquakeChecked, Boolean isTornadoChecked, final FirebaseEventListener listener) {

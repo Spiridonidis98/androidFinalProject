@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class RecommendEventsWorker extends Worker {
 
-    final double RADIUS_KM = 10;
+    final double RADIUS_KM = 10; //the min distance between events to be in the same cluster
     final long ACCEPTABLE_TIME_DIFF = 2 *60*60*1000; //2 hours forwards AND backwards, for a total of 4 hours
     final int CLUSTER_WEIGHT = 5; //to recommend an alert, there needs to be a total weight of at least 'CLUSTER_WEIGHT' of events that refer to the same disaster
     final int LAST_X_DAYS = 1; // is used to get all events in the last X days
