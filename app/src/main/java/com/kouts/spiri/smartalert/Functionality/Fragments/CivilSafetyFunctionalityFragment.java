@@ -1,8 +1,8 @@
 package com.kouts.spiri.smartalert.Functionality.Fragments;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -20,7 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -49,6 +48,7 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
     private LinearLayout reportContainer;
     private View view;
     private RecyclerView recyclerView;
+    SQLiteDatabase database;
     private final float ALERT_RADIUS = 10; //kilometers
     public CivilSafetyFunctionalityFragment() {
         // Required empty public constructor
@@ -82,10 +82,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         earthquakeCheckbox = view.findViewById(R.id.earthquakeCheckbox);
         tornadoCheckbox = view.findViewById(R.id.tornadoCheckbox);
 
-        fireCheckbox.setChecked(true);
-        floodCheckbox.setChecked(true);
-        earthquakeCheckbox.setChecked(true);
-        tornadoCheckbox.setChecked(true);
+        database = Helper.createLocalDB(view.getContext());
+        initializeCheckboxes();
 
         getRecommendedEvents = view.findViewById(R.id.getRecommendedEvents);
         getRecommendedEvents.setOnClickListener(this::recommendEventsWorkManager);
@@ -96,6 +94,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
 
     public void recommendEventsWorkManager(View v) {
         reportContainer.removeAllViewsInLayout();
+        updateCheckBoxValues(); //checkbox values updated in the db when user presses the "search events" button
+
         TextView searchResults = new TextView(v.getContext());
 
         WorkManager workManager = WorkManager.getInstance(v.getContext());
@@ -131,16 +131,66 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                                 reportContainer.addView(searchResults);
                             }
                             else {
-                                searchResults.setText("");
-                                reportContainer.addView(searchResults);
+                                ArrayList<ArrayList<Event>> listOfFireEvents = new ArrayList<>();
+                                ArrayList<ArrayList<Event>> listOfFloodEvents = new ArrayList<>();
+                                ArrayList<ArrayList<Event>> listOfEarthquakeEvents = new ArrayList<>();
+                                ArrayList<ArrayList<Event>> listOfTornadoEvents = new ArrayList<>();
 
                                 for(ArrayList<Event> listOfEvents : recommendedAlertLists) {
-                                    addEventToLayout(listOfEvents);
+                                    if (!listOfEvents.isEmpty()) {
+                                        EventTypes alertType = listOfEvents.get(0).getAlertType(); //every event in each list should have the same EventType
+                                        if (alertType.equals(EventTypes.FIRE)) {
+                                            listOfFireEvents.add(listOfEvents);
+                                        }
+                                        else if (alertType.equals(EventTypes.FLOOD)) {
+                                            listOfFloodEvents.add(listOfEvents);
+                                        }
+                                        else if (alertType.equals(EventTypes.EARTHQUAKE)) {
+                                            listOfEarthquakeEvents.add(listOfEvents);
+                                        }
+                                        else if (alertType.equals(EventTypes.TORNADO)) {
+                                            listOfTornadoEvents.add(listOfEvents);
+                                        }
+                                        else {
+                                            Log.d("CivilSafetyFunctionalityFragment", "recommendEventsWorkManager: Type of list not recognized");
+                                        }
+                                    }
+                                    else {
+                                        Log.d("CivilSafetyFunctionalityFragment", "recommendEventsWorkManager: Empty list detected");
+                                    }
+                                }
+
+                                ArrayList<ArrayList<Event>> listsToDisplay = new ArrayList<>();
+
+                                if (fireCheckbox.isChecked() && !listOfFireEvents.isEmpty()) {
+                                    listsToDisplay.addAll(listOfFireEvents);
+                                }
+                                if (floodCheckbox.isChecked() && !listOfFloodEvents.isEmpty()) {
+                                    listsToDisplay.addAll(listOfFloodEvents);
+                                }
+                                if (earthquakeCheckbox.isChecked() && !listOfEarthquakeEvents.isEmpty()) {
+                                    listsToDisplay.addAll(listOfEarthquakeEvents);
+                                }
+                                if (tornadoCheckbox.isChecked() && !listOfTornadoEvents.isEmpty()) {
+                                    listsToDisplay.addAll(listOfTornadoEvents);
+                                }
+
+                                if (listsToDisplay.isEmpty()) {
+                                    String message = getString(R.string.no_recommended_alerts_were_found);
+                                    searchResults.setText(message);
+                                    reportContainer.addView(searchResults);
+                                }
+                                else {
+                                    searchResults.setText("");
+                                    reportContainer.addView(searchResults);
+
+                                    for(ArrayList<Event> listToDisplay : listsToDisplay) {
+                                        addEventToLayout(listToDisplay);
+                                    }
                                 }
                             }
 
                         }
-
                     }
                     else {
                         String message = getString(R.string.no_recommended_alerts_were_found);
@@ -149,48 +199,6 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                     }
                     Log.d("RecommendEventsManagerActivity",recommendedAlertLists.toString() );
                 });
-    }
-
-    private void expandRecyclerView(RecyclerView recyclerView) {
-        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                int targetHeight = recyclerView.getMeasuredHeight();
-
-                ValueAnimator anim = ValueAnimator.ofInt(0, targetHeight);
-                anim.setDuration(300);
-                anim.addUpdateListener(valueAnimator -> {
-                    int value = (int) valueAnimator.getAnimatedValue();
-                    recyclerView.getLayoutParams().height = value;
-                    recyclerView.requestLayout();
-                });
-                anim.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        recyclerView.setVisibility(View.VISIBLE);
-                    }
-                });
-                anim.start();
-            }
-        });
-    }
-
-    private void collapseRecyclerView(RecyclerView recyclerView) {
-        ValueAnimator anim = ValueAnimator.ofInt(recyclerView.getHeight(), 0);
-        anim.setDuration(300);
-        anim.addUpdateListener(valueAnimator -> {
-            int value = (int) valueAnimator.getAnimatedValue();
-            recyclerView.getLayoutParams().height = value;
-            recyclerView.requestLayout();
-        });
-        anim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                recyclerView.setVisibility(View.GONE);
-            }
-        });
-        anim.start();
     }
 
     public void addEventToLayout(ArrayList<Event> listOfEvents) {
@@ -220,6 +228,11 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
                 public void alertAdded() {
                     Helper.showToast(getContext(), "Alert Created", Toast.LENGTH_LONG);
                 }
+
+                @Override
+                public void alertExists() {
+                    Helper.showToast(getContext(), "Alert Already Exists", Toast.LENGTH_LONG);
+                }
             });
         });
 
@@ -228,9 +241,8 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         expanView.setOnClickListener(v -> {
             if (recyclerView.getVisibility() == View.GONE) {
                 recyclerView.setVisibility(View.VISIBLE);
-                expandRecyclerView(recyclerView);
             } else {
-                collapseRecyclerView(recyclerView);
+                recyclerView.setVisibility(View.GONE);
             }
         });
 
@@ -294,5 +306,48 @@ public class CivilSafetyFunctionalityFragment extends Fragment {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         int itemWidth = 600; // Adjust this value according to your item dimensions
         return screenWidth / itemWidth;
+    }
+
+    //initialize checkboxes
+    private void initializeCheckboxes() {
+        fireCheckbox = view.findViewById(R.id.fireCheckbox);
+        floodCheckbox = view.findViewById(R.id.floodCheckbox);
+        earthquakeCheckbox = view.findViewById(R.id.earthquakeCheckbox);
+        tornadoCheckbox = view.findViewById(R.id.tornadoCheckbox);
+
+        Cursor cursor = database.rawQuery("Select * from Preferences WHERE UID = ? LIMIT 1" , new String[]{FirebaseDB.getAuth().getUid()});
+
+        if (cursor != null && cursor.moveToFirst()) { //set as default checkbox values the last values used by the user
+            cursor.moveToFirst();
+
+            boolean fireEnabled = cursor.getInt(2) == 1;
+            boolean floodEnabled = cursor.getInt(3) == 1;
+            boolean earthquakeEnabled = cursor.getInt(4) == 1;
+            boolean tornadoEnabled = cursor.getInt(5) == 1;
+
+            fireCheckbox.setChecked(fireEnabled);
+            floodCheckbox.setChecked(floodEnabled);
+            earthquakeCheckbox.setChecked(earthquakeEnabled);
+            tornadoCheckbox.setChecked(tornadoEnabled);
+
+            cursor.close();
+        } else {
+            fireCheckbox.setChecked(true);
+            floodCheckbox.setChecked(true);
+            earthquakeCheckbox.setChecked(true);
+            tornadoCheckbox.setChecked(true);
+        }
+    }
+
+    //update the latest checkbox values in the db to be used for next time
+    private void updateCheckBoxValues() {
+
+        ContentValues values = new ContentValues();
+        values.put("notifCheckboxFire", fireCheckbox.isChecked());
+        values.put("notifCheckboxFlood", floodCheckbox.isChecked());
+        values.put("notifCheckboxEarthquake", earthquakeCheckbox.isChecked());
+        values.put("notifCheckboxTornado", tornadoCheckbox.isChecked());
+
+        database.update("Preferences", values, "UID = ?", new String[]{FirebaseDB.getAuth().getUid()});
     }
 }

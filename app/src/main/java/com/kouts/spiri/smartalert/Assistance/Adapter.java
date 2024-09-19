@@ -74,8 +74,6 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             eventTypeTextView = itemView.findViewById(R.id.event_type);
             eventCommentTextView = itemView.findViewById(R.id.event_comment);
             eventTimeStampTextView = itemView.findViewById(R.id.event_timestamp);
-
-
         }
     }
 
@@ -83,7 +81,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     private void getEventImage(Event event, ImageView imageView) {
 
-        if(event.getImage().isEmpty()) {
+        if(event.getImage() == null || event.getImage().isEmpty()) {
             Glide.with(mContext)
                     .load(R.drawable.baseline_crisis_alert_24)
                     .error(R.drawable.baseline_crisis_alert_24)
@@ -94,7 +92,6 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         FirebaseDB.getImageFromStorage(event.getImage(), new FirebaseDB.FirebaseStorageListener() {
             @Override
             public void onImageRetrieved(Uri image) {
-                event.setImageURI(image);
                 Glide.with(mContext)
                         .load(image)
                         .error(R.drawable.baseline_crisis_alert_24)

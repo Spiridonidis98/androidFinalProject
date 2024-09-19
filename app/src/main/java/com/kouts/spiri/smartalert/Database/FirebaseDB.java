@@ -7,10 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -34,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class FirebaseDB {
 
@@ -275,18 +273,51 @@ public class FirebaseDB {
 
     //here we have the implementation for the alerts
     public static void addAlert(Alert newAlert, final FirebaseAlertListener listener) {
+
         if(auth.getCurrentUser() != null) {
-            DatabaseReference newAlertRef = alert.push();
-            newAlertRef.setValue(newAlert)
-                    .addOnSuccessListener( aVoid -> {
-                        //Successfully added user
-                        listener.alertAdded();
-                    });
+
+            DatabaseReference dbAlertsRef = FirebaseDB.getAlertReference();
+            CompletableFuture<Boolean> newAlertId = new CompletableFuture<>();
+
+            //check if the alert already exists in the db
+            dbAlertsRef.orderByChild("timestamp").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    DataSnapshot dataSnapshot = task.getResult();
+
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        Alert alert = data.getValue(Alert.class);
+
+                        if (alert != null) {
+                            if (alert.getaId().equals(newAlert.getaId())) {
+                                newAlertId.complete(false); //signal that the alert already exists in the db
+                                return;
+                            }
+                        }
+                    }
+                    newAlertId.complete(true); //signal that the alert doesn't exist in the db
+                }
+            });
+
+            newAlertId.thenAccept((newId) -> { // use the output of the future and push alert if new.
+                if (newId) {
+                    DatabaseReference newAlertRef = alert.push();
+                    newAlertRef.setValue(newAlert)
+                            .addOnSuccessListener( aVoid -> {
+                                //Successfully added user
+                                listener.alertAdded();
+                            });
+                }
+                else {
+                    listener.alertExists();
+                }
+            });
         }
     }
 
     public interface FirebaseAlertListener {
         void alertAdded();
+        void alertExists();
     }
 
     //here we fetch the user alerts
@@ -308,7 +339,7 @@ public class FirebaseDB {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     UserAlerts temp = snap.getValue(UserAlerts.class);
 
-                    if(temp != null ){
+                    if(temp != null && temp.getAlerts() != null){
                         temp.setAlerts(isWithInRange(temp.getAlerts(), startDate, endDate, fireCheckbox, floodCheckbox, tornadoCheckbox, earthquakeCheckbox));
                         userAlertsFound = temp;
 
