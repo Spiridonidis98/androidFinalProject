@@ -209,8 +209,9 @@ public class AlertNotificationService extends Service {
                                     }
                                 }
                             }
-                            //after all necessary alerts have been added to the alertList, continue to sending notifications if needed
-                            notifyIfNewAlert(alertList);
+                            if (!alertList.isEmpty()) {
+                                notifyIfNewAlert(alertList); //after all necessary alerts have been added to the alertList, continue to sending notifications if needed
+                            }
                         }
                     });
         });
@@ -243,9 +244,7 @@ public class AlertNotificationService extends Service {
                                     alertsToRemove.add(alert);
                                 }
                             }
-
                             alertList.removeAll(alertsToRemove);
-
                         }
                     }
 
