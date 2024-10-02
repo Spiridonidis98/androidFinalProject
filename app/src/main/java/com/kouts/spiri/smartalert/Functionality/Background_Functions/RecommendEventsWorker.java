@@ -11,9 +11,7 @@ import androidx.work.WorkerParameters;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.kouts.spiri.smartalert.Assistance.Helper;
 import com.kouts.spiri.smartalert.Database.FirebaseDB;
@@ -21,7 +19,6 @@ import com.kouts.spiri.smartalert.POJOs.Event;
 import com.kouts.spiri.smartalert.POJOs.EventTypes;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -29,13 +26,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
 public class RecommendEventsWorker extends Worker {
 
-    final double RADIUS_KM = 10;
+    final double RADIUS_KM = 10; //the min distance between events to be in the same cluster
     final long ACCEPTABLE_TIME_DIFF = 2 *60*60*1000; //2 hours forwards AND backwards, for a total of 4 hours
-    final int CLUSTER_NUM = 5; //there need to be at least 'CLUSTER_NUM' events that refer to the same disaster reported to recommend an alert
+    final int CLUSTER_WEIGHT = 5; //to recommend an alert, there needs to be a total weight of at least 'CLUSTER_WEIGHT' of events that refer to the same disaster
     final int LAST_X_DAYS = 1; // is used to get all events in the last X days
     final int TOTAL_THREADS = 4; // number of threads to be used, 1 for each event type.
 
@@ -190,7 +186,12 @@ public class RecommendEventsWorker extends Worker {
                 }
             }
 
-            if (clusteredEvents.size() >= CLUSTER_NUM) { // size (including the original event) >= CLUSTER_NUM
+            final int[] weight = new int[1];
+            clusteredEvents.forEach(event -> {
+                weight[0] = weight[0] + event.getWeight();
+            });
+
+            if (weight[0] >= CLUSTER_WEIGHT) { // total weight (including the original event) >= CLUSTER_WEIGHT
                 clusteredEventLists.add(clusteredEvents);
             }
         });

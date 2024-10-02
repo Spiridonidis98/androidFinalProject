@@ -5,14 +5,13 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
 
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
 
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -31,12 +30,6 @@
         android:theme="@style/Theme.SmartAlert"
         tools:targetApi="31">
 
-        <service android:name=".Functionality.Background_Functions.LocationService" />
-        <service android:name=".Functionality.Background_Functions.AlertNotificationService" />
-
-        <receiver android:name=".Functionality.Background_Functions.AlertReceiver" />
-
-
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -51,6 +44,11 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCsjE9FpIdfsbxYDvsKm8eTFr4aZm-skbc" />
+
+        <service android:name=".Functionality.Background_Functions.LocationService" />
+        <service android:name=".Functionality.Background_Functions.AlertNotificationService" />
+
+        <receiver android:name=".Functionality.Background_Functions.AlertReceiver" />
 
         <activity
             android:name=".Functionality.Activities.MapsActivity"
@@ -88,17 +86,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Functionality.CreateEventActivity"
-            android:exported="false">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -107,7 +94,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 

@@ -19,4 +19,22 @@
         <item name="itemTextColor">@color/primarycolor</item>
         <item name="android:background">?android:attr/windowBackground</item>
     </style>
+
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheet</item>
+    </style>
+
+    <style name="BottomSheet" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="behavior_peekHeight">0dp</item>
+        <item name="behavior_fitToContents">false</item>
+        <item name="behavior_skipCollapsed">true</item>
+        <item name="shapeAppearanceOverlay">@style/BottomSheetShape</item>
+    </style>
+
+    <style name="BottomSheetShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">0dp</item>
+    </style>
 </resources>

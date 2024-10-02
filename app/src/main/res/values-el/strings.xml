@@ -2,7 +2,7 @@
 <resources>
     <string-array name="spinnerEventTypes">
         <item>Πυρκαγιά</item>
-        <item>Πλυμμήρα</item>
+        <item>Πλημμύρα</item>
         <item>Σεισμός</item>
         <item>Ανεμοστρόβυλος</item>
     </string-array>
@@ -28,9 +28,9 @@
     <string name="search_events">Αναζήτηση Γεγονότος</string>
     <string name="comment">Σχόλιο</string>
     <string name="flood">Πλημμύρα</string>
-    <string name="tornado">Ανεμοστρόβιλος</string>
+    <string name="tornado">Ανεμοστρόβυλος</string>
     <string name="earthquake">Σεισμός</string>
-    <string name="fire">Φωτιά</string>
+    <string name="fire">Πυρκαγιά</string>
     <string name="select_date">"Επιλέξτε Ημερομηνία "</string>
     <string name="user_info">Στοιχεία Χρήστη</string>
     <string name="logout">Αποσύνδεση</string>
@@ -60,5 +60,17 @@
         <item>Πολιτική</item>
         <item>Ρυθμίσεις</item>
     </string-array>
+    <string name="suggest_emergency_services_call">Αν βρίσκεστε σε επείγουσα κατάσταση, παρακαλώ καλέστε τις τοπικές σας υπηρεσίες έκτακτης ανάγκης!</string>
+    <string name="proceed_without_an_image">Θέλετε να προχωρήσετε χωρίς να προσθέσετε εικόνα;</string>
+    <string name="yes">Ναι</string>
+    <string name="no">Όχι</string>
+    <string name="my_locations">Οι διευθύνσεις μου</string>
+    <string name="personal_info">Προσωπικά στοιχεία</string>
+    <string name="update">Ενημέρωση</string>
+    <string name="confirm_password">Επιβεβαίωση κωδικού</string>
+    <string name="no_addresses">Δεν υπάρχουν καταχωρημένες διευθύνσεις</string>
+    <string name="questioner">Ερωτηματολόγιο</string>
+
+
 
 </resources>
